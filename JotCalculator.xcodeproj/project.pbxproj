@@ -434,11 +434,7 @@
 				);
 				INFOPLIST_FILE = jot/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/jot/framework/lib",
-					"$(PROJECT_DIR)/jot/framework/framework/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = JotCalculator;
 			};
 			name = Debug;
@@ -455,11 +451,7 @@
 				);
 				INFOPLIST_FILE = jot/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/jot/framework/lib",
-					"$(PROJECT_DIR)/jot/framework/framework/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = JotCalculator;
 			};
 			name = Release;

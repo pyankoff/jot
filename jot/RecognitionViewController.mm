@@ -153,7 +153,7 @@
     if (!CGSizeEqualToSize(croppedImage.size, CGSizeZero)) {
         digits = [self.imageProcessor findDigits: croppedImage];
         
-        int minX = [[digits valueForKeyPath:@"@min.x"] integerValue];
+        int minX = (int)[[digits valueForKeyPath:@"@min.x"] integerValue];
         
         int averageWidth = 0;
         int averageHeight = 0;
@@ -182,8 +182,8 @@
         [digits removeObjectsInArray:signs];
         
         [signs sortUsingComparator:^NSComparisonResult(Symbol *s1, Symbol *s2) {
-            NSNumber *x1 = [NSNumber numberWithInt:s1.y];
-            NSNumber *x2 = [NSNumber numberWithInt:s2.y];
+            NSNumber *x1 = [NSNumber numberWithInt:(int)s1.y];
+            NSNumber *x2 = [NSNumber numberWithInt:(int)s2.y];
             return [x1 compare:x2];
         }];
         
@@ -296,7 +296,7 @@
 - (NSArray *)getRow:(NSMutableArray *)digits {
     NSMutableArray *row = [[NSMutableArray alloc] init];
     
-    int minY = [[digits valueForKeyPath:@"@min.y"] integerValue];
+    int minY = (int)[[digits valueForKeyPath:@"@min.y"] integerValue];
     
     int averageHeight = 0;
     for (int i = 0; i< [digits count]; i++ ) {
@@ -314,8 +314,8 @@
     [digits removeObjectsInArray:row];
     //NSLog(@"minY: %d, averageHeight: %d", minY, averageHeight);
     [row sortUsingComparator:^NSComparisonResult(Symbol *s1, Symbol *s2) {
-        NSNumber *x1 = [NSNumber numberWithInt:s1.x];
-        NSNumber *x2 = [NSNumber numberWithInt:s2.x];
+        NSNumber *x1 = [NSNumber numberWithInt:(int)s1.x];
+        NSNumber *x2 = [NSNumber numberWithInt:(int)s2.x];
         return [x1 compare:x2];
     }];
     

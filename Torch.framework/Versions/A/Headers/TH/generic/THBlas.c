@@ -21,12 +21,8 @@ void THBlas_(swap)(long n, real *x, long incx, real *y, long incy)
 
 #if defined(TH_REAL_IS_DOUBLE)
     cblas_dswap(i_n, x, i_incx, y, i_incy);
-    //extern void dswap_(int *n, double *x, int *incx, double *y, int *incy);
-    //dswap_(&i_n, x, &i_incx, y, &i_incy);
 #else
     cblas_sswap(i_n, x, i_incx, y, i_incy);
-    //extern void sswap_(int *n, float *x, int *incx, float *y, int *incy);
-    //sswap_(&i_n, x, &i_incx, y, &i_incy);
 #endif
     return;
   }
@@ -55,12 +51,8 @@ void THBlas_(scal)(long n, real a, real *x, long incx)
 
 #if defined(TH_REAL_IS_DOUBLE)
     cblas_dscal(i_n, a, x, i_incx);
-    //extern void dscal_(int *n, double *a, double *x, int *incx);
-    //dscal_(&i_n, &a, x, &i_incx);
 #else
     cblas_sscal(i_n, a, x, i_incx);
-    //extern void sscal_(int *n, float *a, float *x, int *incx);
-    //sscal_(&i_n, &a, x, &i_incx);
 #endif
     return;
   }
@@ -89,12 +81,8 @@ void THBlas_(copy)(long n, real *x, long incx, real *y, long incy)
 
 #if defined(TH_REAL_IS_DOUBLE)
     cblas_dcopy(i_n, x, i_incx, y, i_incy);
-    //extern void dcopy_(int *n, double *x, int *incx, double *y, int *incy);
-    //dcopy_(&i_n, x, &i_incx, y, &i_incy);
 #else
     cblas_scopy(i_n, x, i_incx, y, i_incy);
-    //extern void scopy_(int *n, float *x, int *incx, float *y, int *incy);
-    //scopy_(&i_n, x, &i_incx, y, &i_incy);
 #endif
     return;
   }
@@ -123,12 +111,8 @@ void THBlas_(axpy)(long n, real a, real *x, long incx, real *y, long incy)
 
 #if defined(TH_REAL_IS_DOUBLE)
     cblas_daxpy(i_n, a, x, i_incx, y, i_incy);
-    //extern void daxpy_(int *n, double *a, double *x, int *incx, double *y, int *incy);
-    //daxpy_(&i_n, &a, x, &i_incx, y, &i_incy);
 #else
     cblas_saxpy(i_n, a, x, i_incx, y, i_incy);
-    //extern void saxpy_(int *n, float *a, float *x, int *incx, float *y, int *incy);
-    //saxpy_(&i_n, &a, x, &i_incx, y, &i_incy);
 #endif
     return;
   }
@@ -157,12 +141,8 @@ real THBlas_(dot)(long n, real *x, long incx, real *y, long incy)
 
 #if defined(TH_REAL_IS_DOUBLE)
     return cblas_ddot(i_n, x, i_incx, y, i_incy);
-    //extern double ddot_(int *n, double *x, int *incx, double *y, int *incy);
-    //return ddot_(&i_n, x, &i_incx, y, &i_incy);
 #else
     return cblas_sdot(i_n, x, i_incx, y, i_incy);
-    //extern float sdot_(int *n, float *x, int *incx, float *y, int *incy);
-    //return sdot_(&i_n, x, &i_incx, y, &i_incy);
 #endif
   }
 #endif
@@ -180,10 +160,10 @@ void THBlas_(gemv)(char trans, long m, long n, real alpha, real *a, long lda, re
   if(n == 1)
     lda = m;
 
-  int cblas_trans = 111;
+  int cblas_trans = CblasNoTrans;
   if((trans == 't') || (trans == 'T'))
   {
-    cblas_trans = 112;
+    cblas_trans = CblasTrans;
   }
   
 #if defined(USE_BLAS) && (defined(TH_REAL_IS_DOUBLE) || defined(TH_REAL_IS_FLOAT))
@@ -200,12 +180,8 @@ void THBlas_(gemv)(char trans, long m, long n, real alpha, real *a, long lda, re
 
 #if defined(TH_REAL_IS_DOUBLE)
     cblas_dgemv(CblasColMajor, cblas_trans, i_m, i_n, alpha, a, i_lda, x, i_incx, beta, y, i_incy);
-    //extern void dgemv_(char *trans, int *m, int *n, double *alpha, double *a, int *lda, double *x, int *incx, double *beta, double *y, int *incy);
-    //dgemv_(&trans, &i_m, &i_n, &alpha, a, &i_lda, x, &i_incx, &beta, y, &i_incy);
 #else
     cblas_sgemv(CblasColMajor, cblas_trans, i_m, i_n, alpha, a, i_lda, x, i_incx, beta, y, i_incy);
-    // extern void sgemv_(char *trans, int *m, int *n, float *alpha, float *a, int *lda, float *x, int *incx, float *beta, float *y, int *incy);
-    // sgemv_(&trans, &i_m, &i_n, &alpha, a, &i_lda, x, &i_incx, &beta, y, &i_incy);
 #endif
     return;
   }
@@ -256,12 +232,8 @@ void THBlas_(ger)(long m, long n, real alpha, real *x, long incx, real *y, long 
 
 #if defined(TH_REAL_IS_DOUBLE)
     cblas_dger(CblasColMajor, i_m, i_n, alpha, x, i_incx, y, i_incy, a, i_lda);
-    // extern void dger_(int *m, int *n, double *alpha, double *x, int *incx, real *y, int *incy, double *a, int *lda);
-    // dger_(&i_m, &i_n, &alpha, x, &i_incx, y, &i_incy, a, &i_lda);
 #else
     cblas_sger(CblasColMajor, i_m, i_n, alpha, x, i_incx, y, i_incy, a, i_lda);
-    // extern void sger_(int *m, int *n, float *alpha, float *x, int *incx, real *y, int *incy, float *a, int *lda);
-    // sger_(&i_m, &i_n, &alpha, x, &i_incx, y, &i_incy, a, &i_lda);
 #endif
     return;
   }
@@ -282,15 +254,15 @@ void THBlas_(gemm)(char transa, char transb, long m, long n, long k, real alpha,
 {
   int transa_ = ((transa == 't') || (transa == 'T'));
   int transb_ = ((transb == 't') || (transb == 'T'));
-  int cblas_transa = 111;
-  int cblas_transb = 111;
+  int cblas_transa = CblasNoTrans;
+  int cblas_transb = CblasNoTrans;
 
   if(n == 1)
     ldc = m;
 
   if(transa_)
   {
-    cblas_transa = 112;
+    cblas_transa = CblasTrans;
     if(m == 1)
       lda = k;
   }
@@ -302,7 +274,7 @@ void THBlas_(gemm)(char transa, char transb, long m, long n, long k, real alpha,
 
   if(transb_)
   {
-    cblas_transb = 112;
+    cblas_transb = CblasTrans;
     if(k == 1)
       ldb = n;
   }
@@ -324,12 +296,8 @@ void THBlas_(gemm)(char transa, char transb, long m, long n, long k, real alpha,
 
 #if defined(TH_REAL_IS_DOUBLE)
     cblas_dgemm(CblasColMajor, cblas_transa, cblas_transb, i_m, i_n, i_k, alpha, a, i_lda, b, i_ldb, beta, c, i_ldc);
-    //extern void dgemm_(char *transa, char *transb, int *m, int *n, int *k, double *alpha, double *a, int *lda, double *b, int *ldb, double *beta, double *c, int *ldc);
-    //dgemm_(&transa, &transb, &i_m, &i_n, &i_k, &alpha, a, &i_lda, b, &i_ldb, &beta, c, &i_ldc);
 #else
     cblas_sgemm(CblasColMajor, cblas_transa, cblas_transb, i_m, i_n, i_k, alpha, a, i_lda, b, i_ldb, beta, c, i_ldc);
-    //extern void sgemm_(char *transa, char *transb, int *m, int *n, int *k, float *alpha, float *a, int *lda, float *b, int *ldb, float *beta, float *c, int *ldc);
-    //sgemm_(&transa, &transb, &i_m, &i_n, &i_k, &alpha, a, &i_lda, b, &i_ldb, &beta, c, &i_ldc);
 #endif
     return;
   }
