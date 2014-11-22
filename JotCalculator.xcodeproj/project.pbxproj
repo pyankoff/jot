@@ -31,6 +31,7 @@
 		5585FA1F1A1F269500EA5CFB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5585FA1E1A1F269500EA5CFB /* UIKit.framework */; };
 		5585FB411A1F29AA00EA5CFB /* framework in Resources */ = {isa = PBXBuildFile; fileRef = 5585FB401A1F29AA00EA5CFB /* framework */; };
 		5585FB471A1F2E6800EA5CFB /* Torch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5585FB461A1F2E6800EA5CFB /* Torch.framework */; };
+		5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5585FB491A21125C00EA5CFB /* SymbolView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,8 @@
 		5585FA1E1A1F269500EA5CFB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5585FB401A1F29AA00EA5CFB /* framework */ = {isa = PBXFileReference; lastKnownFileType = folder; path = framework; sourceTree = "<group>"; };
 		5585FB461A1F2E6800EA5CFB /* Torch.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Torch.framework; sourceTree = "<group>"; };
+		5585FB481A21125C00EA5CFB /* SymbolView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SymbolView.h; sourceTree = "<group>"; };
+		5585FB491A21125C00EA5CFB /* SymbolView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SymbolView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +139,8 @@
 				5585FA041A1F25EC00EA5CFB /* ImageProcessor.mm */,
 				5585FA061A1F25F200EA5CFB /* Symbol.h */,
 				5585FA071A1F25F200EA5CFB /* Symbol.mm */,
+				5585FB481A21125C00EA5CFB /* SymbolView.h */,
+				5585FB491A21125C00EA5CFB /* SymbolView.m */,
 				5585FA0F1A1F263F00EA5CFB /* Torch.h */,
 				5585FA101A1F263F00EA5CFB /* Torch.m */,
 				5585FA091A1F25FF00EA5CFB /* main.lua */,
@@ -300,6 +305,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5585FA111A1F263F00EA5CFB /* Torch.m in Sources */,
+				5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */,
 				554960D01A1269280019E491 /* AppDelegate.m in Sources */,
 				5585FA021A1F258800EA5CFB /* RecognitionViewController.mm in Sources */,
 				5585FA051A1F25EC00EA5CFB /* ImageProcessor.mm in Sources */,

@@ -12,6 +12,7 @@
 #import "opencv2/highgui/ios.h"
 #import "Symbol.h"
 #import <mach/mach_time.h>
+#import "SymbolView.h"
 
 @interface RecognitionViewController ()  <UIGestureRecognizerDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
@@ -23,6 +24,11 @@
 @property (strong, nonatomic) IBOutlet UITapGestureRecognizer *tapRecognizer;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (nonatomic) int fontSize;
+
+
+// Editing
+@property (strong, nonatomic) SymbolView *activeSymbol;
+@property (nonatomic) int initialDigit;
 
 // Camera
 @property (strong, nonatomic) AVCaptureSession *captureSession;
@@ -151,7 +157,7 @@
     
     UIImage *croppedImage = [self cropImage:self.image];
     if (!CGSizeEqualToSize(croppedImage.size, CGSizeZero)) {
-        digits = [self.imageProcessor findDigits: croppedImage];
+        digits = [self findDigits: croppedImage];
         
         int minX = (int)[[digits valueForKeyPath:@"@min.x"] integerValue];
         
@@ -335,7 +341,7 @@
     int x = FOCUS_RECT_X + digit.x * self.imageView.bounds.size.width  / 540;
     int y = FOCUS_RECT_Y + digit.y * self.imageView.bounds.size.height  / (960 - 2 * [self padding]);
     //NSLog(@"x: %d, y: %d, symbol: %@", x, y, digit.symbol);
-    UILabel *digitLabel = [[UILabel alloc] initWithFrame:CGRectMake(x, y, self.fontSize, self.fontSize)];
+    SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.fontSize, self.fontSize)];
     
     NSAttributedString *labelSymbol = [[NSAttributedString alloc] initWithString:digit.symbol
                         attributes:@{NSForegroundColorAttributeName: [UIColor colorWithRed:1 green:1 blue:1 alpha:0.4],
@@ -344,13 +350,40 @@
                                      NSFontAttributeName: [UIFont boldSystemFontOfSize:self.fontSize] }];
     
     digitLabel.attributedText = labelSymbol;
+    digitLabel.userInteractionEnabled = YES;
     [self.imageView addSubview:digitLabel];
     //[self.imageView setImage:self.image];
     
 }
 
+- (IBAction)adjust:(UIPanGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        CGPoint point = [sender locationInView:self.imageView];
+        UIView *tappedView = [self.imageView hitTest:point withEvent:nil];
+        
+        if ([tappedView isKindOfClass:[SymbolView class]]) {
+            self.activeSymbol = (SymbolView *)tappedView;
+            self.initialDigit = [[self.activeSymbol.attributedText string] integerValue];
+            [self adjustDigit:[sender translationInView:self.imageView].y];
+        }
+    } else if (sender.state == UIGestureRecognizerStateChanged) {
+        [self adjustDigit:[sender translationInView:self.imageView].y];
+    } else if (sender.state == UIGestureRecognizerStateEnded) {
+        self.activeSymbol = nil;
+        self.initialDigit = NULL;
+    }
+}
 
-
+- (void)adjustDigit:(float)translation {
+    //NSLog(@"%f", translation);
+    int digit = min(max(self.initialDigit - int(translation/30),0), 9);
+    
+    self.activeSymbol.attributedText = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%d", digit]
+                                                            attributes:@{NSForegroundColorAttributeName: [UIColor colorWithRed:1 green:1 blue:1 alpha:0.4],
+                                                                         NSStrokeWidthAttributeName: @(-1.5),
+                                                                         NSStrokeColorAttributeName:[UIColor colorWithRed:247.0/255 green:82.0/255 blue:28.0/255 alpha:1],
+                                                                         NSFontAttributeName: [UIFont boldSystemFontOfSize:self.fontSize] }];
+}
 
 
 
@@ -548,6 +581,140 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 -(UIStatusBarStyle)preferredStatusBarStyle{
     return UIStatusBarStyleLightContent;
+}
+
+
+
+
+
+- (NSMutableArray *) findDigits:(UIImage*)image
+{
+    // Convert UIImage* to cv::Mat
+    Mat cvImage;
+    Mat scaledImage(cv::Size(600, 800), CV_8UC3);
+    UIImageToMat(image, cvImage);
+    
+    int rows = cvImage.rows;
+    int cols = cvImage.cols;
+    //NSLog(@"Original rows: %d, cols: %d", rows, cols);
+    
+    resize(cvImage, scaledImage, scaledImage.size());
+    rows = scaledImage.rows;
+    cols = scaledImage.cols;
+    //NSLog(@"Scaled rows: %d, cols: %d", rows, cols);
+    //cv::transpose(scaledImage, scaledImage);
+    //cv::flip(scaledImage, scaledImage, 270);
+    
+    NSMutableArray *foundDigits = [[NSMutableArray alloc] init];
+    
+    if (!scaledImage.empty())
+    {
+        Mat gray;
+        Mat blur;
+        Mat blur2;
+        
+        double minVal;
+        double maxVal;
+        cv::Point minLoc;
+        cv::Point maxLoc;
+        
+        cvtColor(cvImage, gray, CV_RGBA2GRAY);
+        
+        medianBlur(gray, blur, 5);
+        
+        float k = 0.5;
+        blur = (gray + k * blur) * (1 - k);
+        
+        medianBlur(gray, blur2, 41);
+        
+        blur = 120 * blur / blur2;
+        
+        minMaxLoc(blur, &minVal, &maxVal, &minLoc, &maxLoc);
+        
+        blur = 255 * blur / maxVal;
+        blur.convertTo(blur, CV_8UC1);
+        
+        Mat thresh;
+        threshold(blur, thresh, 0, 255, THRESH_BINARY_INV+THRESH_OTSU);
+        
+        Mat kernel = getStructuringElement(MORPH_RECT, cv::Size(2, 2));
+        morphologyEx(thresh, thresh, MORPH_OPEN, kernel);
+        
+        kernel = getStructuringElement(MORPH_ELLIPSE, cv::Size(13, 13));
+        morphologyEx(thresh, thresh, MORPH_CLOSE, kernel);
+        
+        //[self.imageView1 setImage:MatToUIImage(thresh)];
+        
+        Mat pic;
+        thresh.copyTo(pic);
+        
+        vector<vector<cv::Point> > contours;
+        vector<Vec4i> hierarchy;
+        findContours(thresh, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+        
+        //vector<vector<cv::Point>> contours_poly(contours.size());
+        //cv::vector<cv::Rect> boundRect( contours.size() );
+        //cv::vector<cv::Point2f>center( contours.size() );
+        //cv::vector<float>radius( contours.size() );
+        //cv::vector<cv::Mat> digits(contours.size());
+        cv::vector<cv::Point> contours_poly;
+        cv::Rect boundRect;
+        cv::Point2f center;
+        float radius;
+        cv::Mat digit;
+        
+        
+        NSLog(@"number of contours %d", int(contours.size()));
+        
+        //[self showImage:MatToUIImage(pic)];
+        
+        if (int(contours.size()) < 100) {
+            
+            for (int i = 0; i < contours.size(); i++ )
+            {
+                if (cv::arcLength(contours[i], YES) > 100) {
+                    
+                    NSLog(@"contour: %f", cv::arcLength(contours[i], YES));
+            
+                    cv::approxPolyDP(cv::Mat(contours[i]), contours_poly, 3, true);
+                    boundRect = cv::boundingRect( cv::Mat(contours_poly) );
+                    cv::minEnclosingCircle((cv::Mat)contours_poly, center, radius);
+                
+                    //cv::drawContours(thresh, contours_poly, i, cv::Scalar(255), 3, 8, cv::vector<cv::Vec4i>(), 0, cv::Point() );
+                    //cv::rectangle(edges, boundRect[i].tl(), boundRect[i].br(), 255, 2, 8, 0 );
+                    //cv::circle( edges, center[i], (int)radius[i], 255, 2, 8, 0 );
+                
+                    cv::Mat digitRect;
+                    
+                    int x = max(boundRect.x-5, 0);
+                    int y = max(boundRect.y-5, 0);
+                    int width = min(x + boundRect.width+10, pic.size[1]) - x;
+                    int height = min(y + boundRect.height+10, pic.size[0]) - y;
+                    
+                    digitRect.create(width, height, CV_32F);
+                    digitRect = pic(cv::Rect(x, y, width, height));
+                    
+                    digitRect.copyTo(digit);
+                    
+                    Symbol *symbol = [[Symbol alloc] init];
+                    symbol.x = boundRect.x;
+                    symbol.y = boundRect.y;
+                    symbol.image = *(&digit);
+                    [foundDigits addObject:symbol];
+                }
+            }
+        } else {
+            NSLog(@"too many contours");
+        }
+    }
+    
+    return foundDigits;
+}
+
+- (void)showImage:(UIImage *)image {
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 200, 250)];
+    [imageView setImage:image];
+    [self.view addSubview:imageView];
 }
 
 @end
