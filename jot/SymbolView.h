@@ -10,4 +10,6 @@
 
 @interface SymbolView : UILabel
 
+@property (nonatomic) int symbolIndex;
+
 @end
