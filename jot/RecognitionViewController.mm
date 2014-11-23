@@ -440,13 +440,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         return [x1 compare:x2];
     }];
     
-    NSLog(@"number of signs: %d", [signs count]);
+    //NSLog(@"number of signs: %d", [signs count]);
     
     for (Symbol *sign in signs) {
         sign.type = @"sign";
         [self.signsIndexes addObject:[NSNumber numberWithInt:[self.symbols indexOfObjectIdenticalTo:sign]]];
     }
-    NSLog(@"sign index: %@", self.signsIndexes);
+    //NSLog(@"sign index: %@", self.signsIndexes);
 }
 
 - (void)peelDigitsFrom:(NSMutableArray *)symbols row:(int)rowNumber{
@@ -492,7 +492,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         digit.type = @"digit";
         [self.numbersIndexes[rowNumber] addObject:[NSNumber numberWithInt:[self.symbols indexOfObjectIdenticalTo:digit]]];
     }
-    NSLog(@"number index: %@", self.numbersIndexes);
+    //NSLog(@"number index: %@", self.numbersIndexes);
 }
 
 - (void)recognizeSymbols{
@@ -516,6 +516,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (void)makeExpression {
+    NSLog(@"making new expression");
     NSMutableArray *signs = [[NSMutableArray alloc] init];
     NSMutableArray *numbers = [[NSMutableArray alloc] init];
     
@@ -542,7 +543,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     //NSLog(@"numbers: %d, signs: %d", [numbers count], [signs count]);
     
-    if ([numbers count] == [signs count] + 1 and self.recognitionOn) {
+    if ([numbers count] == [signs count] + 1) {
         /*for (int i = 0; i < [signs count]; i++) {
             Symbol *sign = signs[i];
             sign.y = ([numbers[i] integerValue] + [numbers[i+1] integerValue]) / 2;
@@ -661,10 +662,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     } else if (sender.state == UIGestureRecognizerStateChanged) {
         [self adjustDigit:[sender translationInView:self.imageView].y];
     } else if (sender.state == UIGestureRecognizerStateEnded) {
-        ((Symbol *)self.symbols[self.activeSymbol.symbolIndex]).symbol = self.activeSymbol.text;
-        //NSLog(@"%d, %@", self.activeSymbol.symbolIndex, symbol.symbol);
-        [self makeExpression];
-        [self drawAnswer];
         self.activeSymbol = nil;
         self.initialDigit = NULL;
     }
@@ -679,7 +676,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                                                                          NSStrokeWidthAttributeName: @(-1.5),
                                                                          NSStrokeColorAttributeName:[UIColor colorWithRed:247.0/255 green:82.0/255 blue:28.0/255 alpha:1],
                                                                          NSFontAttributeName: [UIFont boldSystemFontOfSize:self.fontSize] }];
-
+    ((Symbol *)self.symbols[self.activeSymbol.symbolIndex]).symbol = self.activeSymbol.text;
+    //NSLog(@"%d, %@", self.activeSymbol.symbolIndex, symbol.symbol);
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, NULL), ^{
+        [self makeExpression];
+        [self drawAnswer];
+    });
 }
 
 @end

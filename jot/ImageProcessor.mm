@@ -83,7 +83,7 @@
     Mat kernel = getStructuringElement(MORPH_RECT, cv::Size(2, 2));
     morphologyEx(thresh, thresh, MORPH_OPEN, kernel);
     
-    kernel = getStructuringElement(MORPH_ELLIPSE, cv::Size(13, 13));
+    kernel = getStructuringElement(MORPH_ELLIPSE, cv::Size(9, 9));
     morphologyEx(thresh, thresh, MORPH_CLOSE, kernel);
     
     //[self.imageView1 setImage:MatToUIImage(thresh)];
