@@ -15,7 +15,7 @@
 #import "SymbolView.h"
 #import "Parse/Parse.h"
 
-@interface RecognitionViewController ()  <UIGestureRecognizerDelegate>
+@interface RecognitionViewController ()  <UIGestureRecognizerDelegate, UIApplicationDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (strong, nonatomic) UIImage *image;
 @property (strong, nonatomic) ImageProcessor *imageProcessor;
@@ -32,6 +32,9 @@
 @property (strong, nonatomic) NSArray *signsIndexes;
 @property (strong, nonatomic) NSArray *numbersIndexes;
 @property (strong, nonatomic) NSString *answer;
+
+// Parse
+@property (strong, nonatomic) PFObject *photo;
 
 // Editing
 @property (strong, nonatomic) SymbolView *activeSymbol;
@@ -119,6 +122,10 @@
     } else {
         NSLog(@"no camera");
     }
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+    [self sendSymbolsToParse];
 }
 
 #pragma mark - camera
@@ -316,6 +323,62 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 
 
+#pragma mark - Parse
+
+- (void)saveToParse {
+    // track calculation stops
+    [PFAnalytics trackEvent:@"Calculation" dimensions:@{}];
+    
+    // save photo
+    NSData *imageData = UIImageJPEGRepresentation(self.image, 0.05f);
+    PFFile *imageFile = [PFFile fileWithName:@"Image.jpg" data:imageData];
+    [imageFile saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        if (!error) {
+            PFObject *photo = [PFObject objectWithClassName:@"Photo"];
+            [photo setObject:imageFile forKey:@"imageFile"];
+            [photo setObject:[PFUser currentUser] forKey:@"user"];
+            [photo saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+                if (!error) {
+                    for (Symbol *symbol in self.symbols) {
+                        symbol.parseObject[@"PhotoId"] = photo;
+                    }
+                }
+            }];
+        }
+    }];
+    [self saveSymbolsFromPhoto:self.photo];
+}
+
+- (void)saveSymbolsFromPhoto:(PFObject *)photo {
+    for (Symbol *symbol in self.symbols) {
+        symbol.parseObject = [PFObject objectWithClassName:@"Symbol"];
+        symbol.parseObject[@"recognized"] = [NSString stringWithFormat:@"%@", symbol.symbol];
+        symbol.parseObject[@"adjusted"] = @"";
+        
+        NSData *imageData = UIImageJPEGRepresentation(MatToUIImage(symbol.image), 0.05f);
+        PFFile *imageFile = [PFFile fileWithName:@"Image.jpg" data:imageData];
+        [imageFile saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+            if (!error) {
+                symbol.parseObject[@"imgFile"] = imageFile;
+            } else {
+                NSLog(@"%@", error);
+            }
+        }];
+    }
+}
+
+- (void)updateAdjustedSymbol {
+    Symbol *symbol = self.symbols[self.activeSymbol.symbolIndex];
+    [symbol.parseObject setObject:[NSString stringWithFormat:@"%@", symbol.symbol] forKey:@"adjusted"];
+    NSLog(@"%@", symbol.parseObject[@"adjusted"]);
+}
+
+- (void)sendSymbolsToParse {
+    for (Symbol *symbol in self.symbols) {
+        [symbol.parseObject saveEventually];
+    }
+}
+
 #pragma mark - recognition
 
 - (IBAction)toggleRecognition {
@@ -328,22 +391,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         self.imageView.contentMode = UIViewContentModeScaleAspectFill;
         [self.imageView setImage:self.image];
         
-        // track calculation stops
-        NSDictionary *dimensions = @{};
-        [PFAnalytics trackEvent:@"Calculation" dimensions:dimensions];
-        
-        // save photo
-        NSData *imageData = UIImageJPEGRepresentation(self.image, 0.05f);
-        PFFile *imageFile = [PFFile fileWithName:@"Image.jpg" data:imageData];
-        [imageFile saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-            if (!error) {
-                PFObject *wholeImage = [PFObject objectWithClassName:@"wholeImage"];
-                [wholeImage setObject:imageFile forKey:@"imageFile"];
-                [wholeImage saveEventually];
-            }
-        }];
-        
+        [self saveToParse];
     } else {
+        [self sendSymbolsToParse];
         NSLog(@"recognition started");
         self.recognitionOn = YES;
         [self startRecognition];
@@ -402,18 +452,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         [numbersIndexes addObject:[self peelDigitsFrom:symbols]];
     }
     
-    if ([numbersIndexes count] == [signsIndexes count] + 1) {
+    symbols = [self recognizeSymbols:symbols];
+    
+    if ([numbersIndexes count] == [signsIndexes count] + 1 and self.recognitionOn) {
         self.symbols = symbols;
         self.signsIndexes = signsIndexes;
         self.numbersIndexes = numbersIndexes;
         
-        [self recognizeAndDisplay];
+        [self display];
     }
 }
 
-- (void)recognizeAndDisplay {
-    [self recognizeSymbols];
-    
+- (void)display {
     [self makeExpression];
     
     [self drawExpression];
@@ -508,8 +558,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     return numbersRow;
 }
 
-- (void)recognizeSymbols{
-    for (Symbol *symbol in self.symbols) {
+- (NSArray *)recognizeSymbols:(NSArray *)symbols{
+    for (Symbol *symbol in symbols) {
         NSMutableArray *flatImage;
         flatImage = [self.imageProcessor cvMat2MutableArray:symbol.image];
         
@@ -525,6 +575,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         }
         //NSLog(symbol.symbol);
     }
+    return symbols;
 }
 
 - (void)makeExpression {
@@ -653,7 +704,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     digitLabel.type = symbol.type;
     digitLabel.symbol = symbol.symbol;
     digitLabel.userInteractionEnabled = YES;
-    digitLabel.symbolIndex = [self.symbols indexOfObjectIdenticalTo:symbol];
+    digitLabel.symbolIndex = (int)[self.symbols indexOfObjectIdenticalTo:symbol];
     [self.imageView addSubview:digitLabel];
     //[self.imageView setImage:self.image];
     
@@ -674,6 +725,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             [self adjustSymbol:[sender translationInView:self.imageView].y];
         }
     } else if (sender.state == UIGestureRecognizerStateEnded) {
+        [self updateAdjustedSymbol];
         self.activeSymbol = nil;
         self.initialSymbolNumber = NULL;
     }
