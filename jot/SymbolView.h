@@ -10,6 +10,12 @@
 
 @interface SymbolView : UILabel
 
+@property (strong, nonatomic) NSString *type;
+
+@property (nonatomic) int symbolNumber;
+@property (strong, nonatomic) NSString *symbol;
+
 @property (nonatomic) int symbolIndex;
+@property (nonatomic) int fontSize;
 
 @end
