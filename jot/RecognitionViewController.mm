@@ -413,8 +413,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 //            mach_timebase_info_data_t timeBaseInfo;
 //            mach_timebase_info(&timeBaseInfo);
 //            uint64_t startTime = mach_absolute_time();
-            
-            [self recognize];
+            @autoreleasepool {
+                [self recognize];
+            }
             
 //            uint64_t endTime = mach_absolute_time();
 //            double elapsedTime = (endTime - startTime) * timeBaseInfo.numer / timeBaseInfo.denom / 1e9;
@@ -614,7 +615,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             sign.y = ([numbers[i] integerValue] + [numbers[i+1] integerValue]) / 2;
         }*/
         self.answer = [self getAnswer:numbers signs:signs];
-        NSLog(self.answer);
+        NSLog(@"%@", self.answer);
     }
 }
 

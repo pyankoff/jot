@@ -16,8 +16,8 @@
 @property (nonatomic) NSUInteger x;
 @property (nonatomic) NSUInteger y;
 @property (nonatomic) cv::Mat image;
-@property (nonatomic) NSString *symbol;
-@property (nonatomic) NSString *type;
+@property (strong, nonatomic) NSString *symbol;
+@property (strong, nonatomic) NSString *type;
 
 @property (strong, nonatomic) PFObject *parseObject;
 
