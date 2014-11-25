@@ -43,6 +43,7 @@
 		5585FB411A1F29AA00EA5CFB /* framework in Resources */ = {isa = PBXBuildFile; fileRef = 5585FB401A1F29AA00EA5CFB /* framework */; };
 		5585FB471A1F2E6800EA5CFB /* Torch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5585FB461A1F2E6800EA5CFB /* Torch.framework */; };
 		5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5585FB491A21125C00EA5CFB /* SymbolView.m */; };
+		558DDD141A24B8D600395FFA /* imgs in Resources */ = {isa = PBXBuildFile; fileRef = 558DDD131A24B8D600395FFA /* imgs */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +107,7 @@
 		5585FB461A1F2E6800EA5CFB /* Torch.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Torch.framework; sourceTree = "<group>"; };
 		5585FB481A21125C00EA5CFB /* SymbolView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SymbolView.h; sourceTree = "<group>"; };
 		5585FB491A21125C00EA5CFB /* SymbolView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SymbolView.m; sourceTree = "<group>"; };
+		558DDD131A24B8D600395FFA /* imgs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = imgs; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +185,7 @@
 				5585FA0F1A1F263F00EA5CFB /* Torch.h */,
 				5585FA101A1F263F00EA5CFB /* Torch.m */,
 				5585FA091A1F25FF00EA5CFB /* main.lua */,
+				558DDD131A24B8D600395FFA /* imgs */,
 				558DDD101A24A79100395FFA /* Nets */,
 				554960D41A1269280019E491 /* Main.storyboard */,
 				554960D71A1269280019E491 /* Images.xcassets */,
@@ -342,6 +345,7 @@
 				554960D61A1269280019E491 /* Main.storyboard in Resources */,
 				554960DB1A1269280019E491 /* LaunchScreen.xib in Resources */,
 				5585FB411A1F29AA00EA5CFB /* framework in Resources */,
+				558DDD141A24B8D600395FFA /* imgs in Resources */,
 				554960D81A1269280019E491 /* Images.xcassets in Resources */,
 				5585FA0D1A1F25FF00EA5CFB /* signs.net in Resources */,
 				5585FA0E1A1F25FF00EA5CFB /* mnist.net in Resources */,

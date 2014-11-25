@@ -44,6 +44,9 @@
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
 @property (strong, nonatomic) dispatch_queue_t queue;
 
+// Simulator
+@property (nonatomic) BOOL onSimulator;
+
 @end
 
 @implementation RecognitionViewController
@@ -105,21 +108,19 @@
 - (void)viewDidLoad {
     
     [super viewDidLoad];
+    if ([[AVCaptureDevice devices] count] > 0) {
+        self.onSimulator = NO;
+        [self setupCaptureSession];
+    } else {
+        NSLog(@"no camera");
+        self.onSimulator = YES;
+    }
     
     self.queue = dispatch_queue_create("recognitionQueue", NULL);
     [self.torch initialize];
     
-    //[self setNeedsStatusBarAppearanceUpdate];
     self.recognitionOn = NO;
-    
-    
-    
-    if ([[AVCaptureDevice devices] count] > 0) {
-        [self setupCaptureSession];
-        [self toggleRecognition];
-    } else {
-        NSLog(@"no camera");
-    }
+    [self toggleRecognition];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -181,7 +182,6 @@
     [self setPreviewLayer:[[AVCaptureVideoPreviewLayer alloc] initWithSession:captureSession]];
     
     [self.previewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-    
     
     //----- DISPLAY THE PREVIEW LAYER -----
     //Display it full screen under out view controller existing controls
@@ -377,7 +377,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     } else {
         [self sendSymbolsToParse];
         self.symbols = nil;
-        [self.imageView setImage:nil];
+        if (self.onSimulator) {
+            int i = arc4random() % 8;
+            self.image = [UIImage imageNamed:[NSString stringWithFormat:@"imgs/img%d.jpg", i]];
+            [self.imageView setImage:self.image];
+        } else {
+            [self.imageView setImage:nil];
+        }
         [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
         
         NSLog(@"recognition started");
@@ -394,16 +400,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     dispatch_async(self.queue, ^{
         while (self.recognitionOn) {
-//            mach_timebase_info_data_t timeBaseInfo;
-//            mach_timebase_info(&timeBaseInfo);
-//            uint64_t startTime = mach_absolute_time();
             @autoreleasepool {
                 [self recognize];
+                if (self.onSimulator) {
+                    self.recognitionOn = NO;
+                }
             }
-            
-//            uint64_t endTime = mach_absolute_time();
-//            double elapsedTime = (endTime - startTime) * timeBaseInfo.numer / timeBaseInfo.denom / 1e9;
-//            NSLog(@"elapsed time: %f", elapsedTime);
         }
     });
 }
@@ -443,7 +445,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         self.symbols = symbols;
         self.signsIndexes = signsIndexes;
         self.numbersIndexes = numbersIndexes;
-        [self alignSigns];
         
         [self display];
     }
@@ -455,17 +456,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self drawExpression];
     
     [self drawAnswer];
-}
-
-- (void) alignSigns {
-    for (int i = 0; i < [self.signsIndexes count]; i++) {
-        Symbol *sign = self.symbols[(int)[self.signsIndexes[i] integerValue]];
-        NSLog(@"sign to move %d", sign.y);
-        Symbol *digit1 = self.symbols[(int)[self.numbersIndexes[i][0] integerValue]];
-        Symbol *digit2 = self.symbols[(int)[self.numbersIndexes[i+1][0] integerValue]];
-        sign.y = (digit1.y + digit2.y)/2;
-        NSLog(@"moved %d", sign.y);
-    }
 }
 
 - (NSArray *)peelSigns:(NSArray *)symbols {
@@ -540,9 +530,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     Symbol *firstSymbol = [row firstObject];
     Symbol *lastSymbol = [row lastObject];
     
-    for (int i = 0; i < [row count]; i++) {
-        Symbol *symbol = row[i];
-        symbol.x = firstSymbol.x + i * (lastSymbol.x - firstSymbol.x) / ([row count] - 1);
+    if ([row count] > 1) {
+        for (int i = 0; i < [row count]; i++) {
+            Symbol *symbol = row[i];
+            symbol.x = firstSymbol.x + i * (lastSymbol.x - firstSymbol.x) / ([row count] - 1);
+        }
     }
     
     NSMutableArray *numbersRow = [[NSMutableArray alloc] init];
