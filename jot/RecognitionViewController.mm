@@ -394,14 +394,16 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         [self saveToParse];
     } else {
         [self sendSymbolsToParse];
+        self.symbols = nil;
+        [self.imageView setImage:nil];
+        [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+        
         NSLog(@"recognition started");
+        
         self.recognitionOn = YES;
         [self startRecognition];
         
         //[self.captureSession startRunning]; // blinks, how to fix?
-        
-        [self.imageView setImage:nil];
-        [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
     }
     [self animateStatus];
 }
@@ -442,7 +444,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)getBlocks:(NSArray *)symbols {
     NSArray *signsIndexes = [self peelSigns:symbols];
     NSMutableArray *numbersIndexes = [[NSMutableArray alloc] init];
-    NSLog(@"initial # simbols: %d", [symbols count]);
+    NSLog(@"initial # simbols: %lu", (unsigned long)[symbols count]);
 
     NSPredicate *check = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
         Symbol *symbol = (Symbol *)evaluatedObject;
@@ -506,7 +508,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     NSMutableArray *signsIndexes = [[NSMutableArray alloc] init];
     for (Symbol *sign in signs) {
         sign.type = @"sign";
-        [signsIndexes addObject:[NSNumber numberWithInt:[symbols indexOfObjectIdenticalTo:sign]]];
+        [signsIndexes addObject:[NSNumber numberWithUnsignedInteger:[symbols indexOfObjectIdenticalTo:sign]]];
     }
     //NSLog(@"sign index: %@", self.signsIndexes);
     return signsIndexes;
@@ -529,7 +531,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     NSMutableArray *row = [[NSMutableArray alloc] init];
     for (Symbol *digit in workingSymbols) {
-        if (digit.y < minY + averageHeight) {
+        if (digit.y < minY + 0.7*averageHeight) {
             digit.y = minY;
             [row addObject:digit];
         }
@@ -553,7 +555,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     for (Symbol *digit in row) {
         digit.type = @"digit";
-        [numbersRow addObject:[NSNumber numberWithInt:[symbols indexOfObjectIdenticalTo:digit]]];
+        [numbersRow addObject:[NSNumber numberWithUnsignedInteger:[symbols indexOfObjectIdenticalTo:digit]]];
     }
 
     return numbersRow;
@@ -584,13 +586,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     NSMutableArray *signs = [[NSMutableArray alloc] init];
     NSMutableArray *numbers = [[NSMutableArray alloc] init];
     
-    NSLog(@"signIndexes size: %d", [self.signsIndexes count]);
-    NSLog(@"numbersIndexes size: %d", [self.numbersIndexes count]);
-    NSLog(@"number of symbols: %d", [self.symbols count]);
+    NSLog(@"signIndexes size: %lu", (unsigned long)[self.signsIndexes count]);
+    NSLog(@"numbersIndexes size: %lu", (unsigned long)[self.numbersIndexes count]);
+    NSLog(@"number of symbols: %lu", (unsigned long)[self.symbols count]);
     for (NSNumber *index in self.signsIndexes) {
         int i = (int)[index integerValue];
         Symbol *sign = self.symbols[i];
-        NSLog(@"sign x: %d", sign.x);
+        NSLog(@"sign x: %lu", (unsigned long)sign.x);
         NSLog(@"sign at index %d: %@", i, sign.symbol);
         [signs addObject:sign.symbol];
         //NSLog(@"sign index: %d", i);
@@ -743,7 +745,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     int number = (self.initialSymbolNumber - int(ceil(translation/30)))%(limit+1);
     if (number < 0) {
-        number += limit;
+        number += limit+1;
     }
     
     self.activeSymbol.symbolNumber = number;

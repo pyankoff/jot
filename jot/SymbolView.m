@@ -26,7 +26,7 @@
 - (int)numberFromSign:(NSString *)symbol {
     int number;
     if ([self.type  isEqual: @"sign"]) {
-        number = [[SymbolView validSigns] indexOfObjectIdenticalTo:symbol];
+        number = (int)[[SymbolView validSigns] indexOfObjectIdenticalTo:symbol];
     } else if ([self.type  isEqual: @"digit"]) {
         number = (int)[symbol integerValue];
     }
