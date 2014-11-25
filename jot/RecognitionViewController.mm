@@ -15,13 +15,12 @@
 #import "SymbolView.h"
 #import "Parse/Parse.h"
 
-@interface RecognitionViewController ()  <UIGestureRecognizerDelegate, UIApplicationDelegate>
+@interface RecognitionViewController ()  <UIApplicationDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (strong, nonatomic) UIImage *image;
 @property (strong, nonatomic) ImageProcessor *imageProcessor;
 @property (strong, nonatomic) Torch *torch;
 @property (nonatomic) BOOL recognitionOn;
-@property (weak, nonatomic) IBOutlet UIButton *infoButton;
 @property (strong, nonatomic) IBOutlet UITapGestureRecognizer *tapRecognizer;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (strong, nonatomic) UILabel *answerLabel;
@@ -111,7 +110,6 @@
     [self.torch initialize];
     
     //[self setNeedsStatusBarAppearanceUpdate];
-    self.tapRecognizer.delegate = self;
     self.recognitionOn = NO;
     
     
@@ -287,22 +285,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                              // Do nothing
                          }];
     }
-}
-
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    if (touch.view == self.infoButton) {
-        return NO;
-    }
-    return YES;
-}
-
-- (IBAction)infoButtonPressed:(UIButton *)sender {
-    UIAlertView *help = [[UIAlertView alloc] initWithTitle:@"Welcome to JotCalculator!"
-                                                   message:@"Write numbers on separate lines and signs on the left."
-                                                  delegate:nil
-                                         cancelButtonTitle:@"OK"
-                                         otherButtonTitles:nil];
-    [help show];
 }
 
 - (CAShapeLayer *)focusRect {
