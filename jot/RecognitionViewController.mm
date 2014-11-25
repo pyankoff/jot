@@ -43,6 +43,7 @@
 @property (strong, nonatomic) AVCaptureSession *captureSession;
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
 @property (strong, nonatomic) dispatch_queue_t queue;
+@property (strong, nonatomic) CAShapeLayer *focusRect;
 
 // Simulator
 @property (nonatomic) BOOL onSimulator;
@@ -64,7 +65,7 @@
     return [signs objectForKey:@(number)];
 }
 
-- (int)padding { return (960 - 540 * self.view.bounds.size.height / self.view.bounds.size.width) / 2; }
+- (int)padding { return (self.image.size.height - self.image.size.width * self.view.bounds.size.height / self.view.bounds.size.width) / 2; }
 
 - (ImageProcessor *)imageProcessor {
     if (!_imageProcessor) {
@@ -121,6 +122,35 @@
     
     self.recognitionOn = NO;
     [self toggleRecognition];
+}
+
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    CGRect layerRect = CGRectMake(0, 0, size.width, size.height);
+    CGPoint center = CGPointMake(CGRectGetMidX(layerRect),
+                                  CGRectGetMidY(layerRect));
+    [self.previewLayer setBounds:layerRect];
+    [self.previewLayer setPosition:center];
+    self.previewLayer.connection.videoOrientation = [self currentOrientation];
+
+    [self.focusRect removeFromSuperlayer];
+    self.focusRect = [self drawFocusRect:size];
+    [[self.imageView layer] addSublayer:self.focusRect];
+    [self.answerLabel setNeedsDisplay];
+}
+
+- (AVCaptureVideoOrientation)currentOrientation {
+    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+    
+    if ( deviceOrientation == UIDeviceOrientationLandscapeLeft )
+        return AVCaptureVideoOrientationLandscapeRight;
+    else if ( deviceOrientation == UIDeviceOrientationLandscapeRight )
+        return AVCaptureVideoOrientationLandscapeLeft;
+    else if( deviceOrientation == UIDeviceOrientationPortrait)
+        return AVCaptureVideoOrientationPortrait;
+    else if( deviceOrientation == UIDeviceOrientationPortraitUpsideDown)
+        return AVCaptureVideoOrientationPortraitUpsideDown;
+    return AVCaptureVideoOrientationPortrait;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -197,8 +227,7 @@
     [self.view sendSubviewToBack:CameraView];
     
     [[CameraView layer] addSublayer:self.previewLayer];
-    [[self.imageView layer] addSublayer:[self focusRect]];
-    
+    [[self.imageView layer] addSublayer:self.focusRect];
     
     //----- START THE CAPTURE SESSION RUNNING -----
     [captureSession startRunning];
@@ -250,12 +279,37 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
 {
     // Create a UIImage from the sample buffer data
-    [connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
+    [connection setVideoOrientation:[self currentOrientation]];
     self.image = [self imageFromSampleBuffer:sampleBuffer];
 }
 
 
 #pragma mark - support UI
+
+- (CAShapeLayer *)drawFocusRect:(CGSize)size {
+    CAShapeLayer *focusRect = [CAShapeLayer layer];
+    
+    UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, size.width, size.height)];
+    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(FOCUS_RECT_X, FOCUS_RECT_Y, size.width-2*FOCUS_RECT_X, size.height-FOCUS_RECT_Y-FOCUS_RECT_Y_BOTTOM) cornerRadius:6];
+    [path appendPath:holePath];
+    [path setUsesEvenOddFillRule:YES];
+    
+    //focusRect.bounds = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);
+    focusRect.path = path.CGPath;
+    focusRect.fillRule = kCAFillRuleEvenOdd;
+    focusRect.fillColor = [UIColor blackColor].CGColor;
+    focusRect.opacity = 0.15;
+    
+    return focusRect;
+}
+
+- (CAShapeLayer *)focusRect {
+    if (!_focusRect) {
+        _focusRect = [self drawFocusRect:self.view.bounds.size];
+    }
+    
+    return _focusRect;
+}
 
 - (void)animateStatus {
     if (!self.recognitionOn) {
@@ -286,24 +340,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                          }];
     }
 }
-
-- (CAShapeLayer *)focusRect {
-    UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
-    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(FOCUS_RECT_X, FOCUS_RECT_Y, self.view.bounds.size.width-2*FOCUS_RECT_X, self.view.bounds.size.height-FOCUS_RECT_Y-FOCUS_RECT_Y_BOTTOM) cornerRadius:6];
-    [path appendPath:holePath];
-    [path setUsesEvenOddFillRule:YES];
-    
-    CAShapeLayer *focusRect = [CAShapeLayer layer];
-    //focusRect.bounds = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);
-    focusRect.path = path.CGPath;
-    focusRect.fillRule = kCAFillRuleEvenOdd;
-    focusRect.fillColor = [UIColor blackColor].CGColor;
-    focusRect.opacity = 0.15;
-    
-    return focusRect;
-}
-
-
 
 #pragma mark - Parse
 
@@ -676,6 +712,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                                                                                       NSParagraphStyleAttributeName:paragraphStyle }];
         
         self.answerLabel.attributedText = labelValue;
+        [self.answerLabel setNeedsDisplay];
         self.answerLabel.layer.cornerRadius = 6;
         self.answerLabel.layer.backgroundColor = [UIColor colorWithRed:247.0/255 green:82.0/255 blue:28.0/255 alpha:1].CGColor;
         //answerLabel.backgroundColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:0.6];
@@ -684,9 +721,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (void)drawSymbol:(Symbol *)symbol {
-    int x = FOCUS_RECT_X + symbol.x * self.imageView.bounds.size.width  / 540;
-    int y = FOCUS_RECT_Y + symbol.y * self.imageView.bounds.size.height  / (960 - 2 * [self padding]);
-    //NSLog(@"x: %d, y: %d, symbol: %@", x, y, digit.symbol);
+    int x = FOCUS_RECT_X + symbol.x * self.imageView.bounds.size.width  / self.image.size.width;
+    //NSLog(@"image size: %f %f", self.image.size.width, self.image.size.height);
+    //NSLog(@"imageView size: %f %f", self.imageView.bounds.size.width, self.imageView.bounds.size.height);
+    int y = FOCUS_RECT_Y + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
+    NSLog(@"x: %d, y: %d, padding: %d", x, y, [self padding]);
     SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.fontSize*0.55, self.fontSize*0.8)];
     
     digitLabel.fontSize = self.fontSize;
