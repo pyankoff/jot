@@ -183,8 +183,7 @@
 				5585FA0F1A1F263F00EA5CFB /* Torch.h */,
 				5585FA101A1F263F00EA5CFB /* Torch.m */,
 				5585FA091A1F25FF00EA5CFB /* main.lua */,
-				5585FA0A1A1F25FF00EA5CFB /* signs.net */,
-				5585FA0B1A1F25FF00EA5CFB /* mnist.net */,
+				558DDD101A24A79100395FFA /* Nets */,
 				554960D41A1269280019E491 /* Main.storyboard */,
 				554960D71A1269280019E491 /* Images.xcassets */,
 				554960D91A1269280019E491 /* LaunchScreen.xib */,
@@ -247,6 +246,15 @@
 				5585F9FA1A1F252100EA5CFB /* Accelerate.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		558DDD101A24A79100395FFA /* Nets */ = {
+			isa = PBXGroup;
+			children = (
+				5585FA0A1A1F25FF00EA5CFB /* signs.net */,
+				5585FA0B1A1F25FF00EA5CFB /* mnist.net */,
+			);
+			name = Nets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -3,6 +3,7 @@
 //
 
 #import "Torch.h"
+#import <mach/mach_time.h>
 
 @implementation Torch
 
@@ -27,6 +28,11 @@ static int lua_getAppPath(lua_State *L) {
 
 - (void)initialize
 {
+    
+    mach_timebase_info_data_t timeBaseInfo;
+    mach_timebase_info(&timeBaseInfo);
+    uint64_t startTime = mach_absolute_time();
+
     appPath = [[NSBundle mainBundle] resourcePath];
     
     // initialize Lua stack
@@ -62,6 +68,11 @@ static int lua_getAppPath(lua_State *L) {
     if (lua_pcall(L, 0, 0, 0) != 0)
         NSLog(@"error running function `f': %s", lua_tostring(L, -1));
     */
+    
+    
+    uint64_t endTime = mach_absolute_time();
+    double elapsedTime = (endTime - startTime) * timeBaseInfo.numer / timeBaseInfo.denom / 1e9;
+    NSLog(@"elapsed time: %f", elapsedTime);
     
     // done
     return;

@@ -1,9 +1,9 @@
 digitsNetworkURI = getAppPath() .. "/mnist.net"
-digitsNetwork = torch.load(digitsNetworkURI, "ascii")
+digitsNetwork = torch.load(digitsNetworkURI)
 
 signsNetworkURI = getAppPath() .. "/signs.net"
-signsNetwork = torch.load(signsNetworkURI, "ascii")
-
+signsNetwork = torch.load(signsNetworkURI)
+--torch.save(signsNetworkURI, signsNetwork)
 
 
 function classify(binaryImage, size)

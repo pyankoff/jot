@@ -39,11 +39,15 @@
     }
     _symbol = symbol;
     _symbolNumber = [self numberFromSign:_symbol];
+    NSMutableParagraphStyle *paragraphStyle= [[NSMutableParagraphStyle alloc] init];
+    paragraphStyle.alignment = NSTextAlignmentCenter;
+    
     self.attributedText = [[NSAttributedString alloc] initWithString:_symbol
                 attributes:@{NSForegroundColorAttributeName: [UIColor colorWithRed:1 green:1 blue:1 alpha:0.4],
                              NSStrokeWidthAttributeName: @(-1.5),
                              NSStrokeColorAttributeName:[UIColor colorWithRed:247.0/255 green:82.0/255 blue:28.0/255 alpha:1],
-                             NSFontAttributeName: [UIFont boldSystemFontOfSize:self.fontSize] }];
+                             NSFontAttributeName: [UIFont boldSystemFontOfSize:self.fontSize],
+                             NSParagraphStyleAttributeName: paragraphStyle }];
 }
 
 - (void)setSymbolNumber:(int)symbolNumber {
