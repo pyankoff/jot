@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5526996D1A2492BC001A887A /* InfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5526996C1A2492BC001A887A /* InfoViewController.m */; };
 		552975851A21B94900F0D12B /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 552975831A21B94900F0D12B /* Bolts.framework */; };
 		552975861A21B94900F0D12B /* Parse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 552975841A21B94900F0D12B /* Parse.framework */; };
 		552975881A21B98000F0D12B /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 552975871A21B98000F0D12B /* CFNetwork.framework */; };
@@ -57,8 +56,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		5526996B1A2492BC001A887A /* InfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InfoViewController.h; sourceTree = "<group>"; };
-		5526996C1A2492BC001A887A /* InfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InfoViewController.m; sourceTree = "<group>"; };
 		552975831A21B94900F0D12B /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bolts.framework; sourceTree = SOURCE_ROOT; };
 		552975841A21B94900F0D12B /* Parse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Parse.framework; sourceTree = SOURCE_ROOT; };
 		552975871A21B98000F0D12B /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -172,8 +169,6 @@
 				5585FB401A1F29AA00EA5CFB /* framework */,
 				552975991A247C1A00F0D12B /* MainViewController.h */,
 				5529759A1A247C1A00F0D12B /* MainViewController.m */,
-				5526996B1A2492BC001A887A /* InfoViewController.h */,
-				5526996C1A2492BC001A887A /* InfoViewController.m */,
 				5585FA001A1F258800EA5CFB /* RecognitionViewController.h */,
 				5585FA011A1F258800EA5CFB /* RecognitionViewController.mm */,
 				5585FA031A1F25EC00EA5CFB /* ImageProcessor.h */,
@@ -368,7 +363,6 @@
 			files = (
 				5585FA111A1F263F00EA5CFB /* Torch.m in Sources */,
 				5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */,
-				5526996D1A2492BC001A887A /* InfoViewController.m in Sources */,
 				554960D01A1269280019E491 /* AppDelegate.m in Sources */,
 				5529759B1A247C1A00F0D12B /* MainViewController.m in Sources */,
 				5585FA021A1F258800EA5CFB /* RecognitionViewController.mm in Sources */,

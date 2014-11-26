@@ -22,7 +22,7 @@
 @property (strong, nonatomic) Torch *torch;
 @property (nonatomic) BOOL recognitionOn;
 @property (strong, nonatomic) IBOutlet UITapGestureRecognizer *tapRecognizer;
-@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (strong, nonatomic) UILabel *statusLabel;
 @property (strong, nonatomic) UILabel *answerLabel;
 @property (nonatomic) int fontSize;
 
@@ -60,12 +60,30 @@
 #define FOCUS_RECT_Y 70
 #define FOCUS_RECT_Y_BOTTOM 80
 
+- (int)padding { return (self.image.size.height - self.image.size.width * self.view.bounds.size.height / self.view.bounds.size.width) / 2; }
+
+- (int)focusRectY {
+    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+    if ( deviceOrientation == UIDeviceOrientationLandscapeLeft || deviceOrientation == UIDeviceOrientationLandscapeRight)  {
+        return FOCUS_RECT_Y/2;
+    } else {
+        return FOCUS_RECT_Y;
+    }
+}
+
+- (int)focusRectYBottom {
+    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+    if ( deviceOrientation == UIDeviceOrientationLandscapeLeft || deviceOrientation == UIDeviceOrientationLandscapeRight)  {
+        return FOCUS_RECT_Y_BOTTOM*0.7;
+    } else {
+        return FOCUS_RECT_Y_BOTTOM;
+    }
+}
+
 - (NSString *)signFromNumber:(int)number {
     NSDictionary *signs = @{@1: @"/", @2: @"*", @3: @"+", @4: @"-"};
     return [signs objectForKey:@(number)];
 }
-
-- (int)padding { return (self.image.size.height - self.image.size.width * self.view.bounds.size.height / self.view.bounds.size.width) / 2; }
 
 - (ImageProcessor *)imageProcessor {
     if (!_imageProcessor) {
@@ -105,6 +123,16 @@
 -(UIStatusBarStyle)preferredStatusBarStyle{
     return UIStatusBarStyleLightContent;
 }
+- (UILabel *)statusLabel {
+    if (!_statusLabel) {
+        _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(FOCUS_RECT_X, [self focusRectY]-40, self.view.bounds.size.width-2*FOCUS_RECT_X, [self focusRectY]-20)];
+        _statusLabel.textColor = [UIColor whiteColor];
+        _statusLabel.textAlignment = NSTextAlignmentCenter;
+        [self.imageView addSubview:_statusLabel];
+    }
+    [_statusLabel setNeedsDisplay];
+    return _statusLabel;
+}
 
 - (void)viewDidLoad {
     
@@ -136,7 +164,9 @@
     [self.focusRect removeFromSuperlayer];
     self.focusRect = [self drawFocusRect:size];
     [[self.imageView layer] addSublayer:self.focusRect];
-    [self.answerLabel setNeedsDisplay];
+    [self drawStatus];
+    [self drawExpression];
+    [self drawAnswer];
 }
 
 - (AVCaptureVideoOrientation)currentOrientation {
@@ -163,20 +193,14 @@
 - (void)setupCaptureSession
 {
     NSError *error = nil;
-    
-    // Create the session
+
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
     
-    // Configure the session to produce lower resolution video frames, if your
-    // processing algorithm can cope. We'll specify medium quality for the
-    // chosen device.
     session.sessionPreset = AVCaptureSessionPresetiFrame960x540;
-    
-    // Find a suitable AVCaptureDevice
+
     AVCaptureDevice *device = [AVCaptureDevice
                                defaultDeviceWithMediaType:AVMediaTypeVideo];
     
-    // Create a device input with the device and add it to the session.
     AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device
                                                                         error:&error];
     if (!input) {
@@ -212,16 +236,12 @@
     [self setPreviewLayer:[[AVCaptureVideoPreviewLayer alloc] initWithSession:captureSession]];
     
     [self.previewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-    
-    //----- DISPLAY THE PREVIEW LAYER -----
-    //Display it full screen under out view controller existing controls
-    //NSLog(@"Display the preview layer ");
+
     CGRect layerRect = [[[self view] layer] bounds];
     [self.previewLayer setBounds:layerRect];
     [self.previewLayer setPosition:CGPointMake(CGRectGetMidX(layerRect),
                                                CGRectGetMidY(layerRect))];
-    //[[[self view] layer] addSublayer:[[self CaptureManager] self.previewLayer]];
-    //We use this instead so it goes on a layer behind our UI controls (avoids us having to manually bring each control to the front):
+
     UIView *CameraView = [[UIView alloc] init];
     [self.view addSubview:CameraView];
     [self.view sendSubviewToBack:CameraView];
@@ -290,9 +310,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     CAShapeLayer *focusRect = [CAShapeLayer layer];
     
     UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, size.width, size.height)];
-    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(FOCUS_RECT_X, FOCUS_RECT_Y, size.width-2*FOCUS_RECT_X, size.height-FOCUS_RECT_Y-FOCUS_RECT_Y_BOTTOM) cornerRadius:6];
+    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(FOCUS_RECT_X, [self focusRectY], size.width-2*FOCUS_RECT_X, size.height-[self focusRectY]-[self focusRectYBottom]) cornerRadius:6];
     [path appendPath:holePath];
     [path setUsesEvenOddFillRule:YES];
+    NSLog(@"focus rect y: %d", [self focusRectY]);
     
     //focusRect.bounds = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);
     focusRect.path = path.CGPath;
@@ -309,6 +330,15 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     
     return _focusRect;
+}
+
+- (void)drawStatus {
+    self.statusLabel = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.statusLabel setFrame:CGRectMake(FOCUS_RECT_X, [self focusRectY]-30, self.view.bounds.size.width-2*FOCUS_RECT_X, [self focusRectY]-10)];
+        [self.imageView addSubview:self.statusLabel];
+    });
+    NSLog(@"status added %f %f", self.statusLabel.bounds.size.width, self.statusLabel.bounds.size.height);
 }
 
 - (void)animateStatus {
@@ -671,9 +701,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     float scale = (float)imgWidth / viewWidth;
     
     float x = FOCUS_RECT_X * scale;
-    float y = [self padding] + FOCUS_RECT_Y * scale;
+    float y = [self padding] + [self focusRectY] * scale;
     int width = imgWidth - 2 * x;
-    int height = imgHeight - (FOCUS_RECT_Y+FOCUS_RECT_Y_BOTTOM) * scale - 2 * [self padding];
+    int height = imgHeight - ([self focusRectY]+[self focusRectYBottom]) * scale - 2 * [self padding];
     
     //NSLog(@"padding: %d, scale: %f, x: %f, y: %f, width: %d, height: %d", [self padding], scale, x, y, width, height);
     
@@ -701,22 +731,24 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)drawAnswer {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.answerLabel = [[UILabel alloc] initWithFrame:CGRectMake(FOCUS_RECT_X, self.view.bounds.size.height-FOCUS_RECT_Y_BOTTOM+10, self.view.bounds.size.width-2*FOCUS_RECT_X, FOCUS_RECT_Y_BOTTOM-20)];
-        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-        paragraphStyle.alignment = NSTextAlignmentCenter;
-        NSAttributedString *labelValue = [[NSAttributedString alloc] initWithString:self.answer
-                                                                         attributes:@{NSForegroundColorAttributeName: [UIColor colorWithRed:1 green:1 blue:1 alpha:0.7],
-                                                                                      NSStrokeWidthAttributeName: @(0.0),
-                                                                                      NSStrokeColorAttributeName:[UIColor redColor],
-                                                                                      NSFontAttributeName: [UIFont boldSystemFontOfSize:MIN(50, 400/[self.answer length])],
-                                                                                      NSParagraphStyleAttributeName:paragraphStyle }];
-        
-        self.answerLabel.attributedText = labelValue;
-        [self.answerLabel setNeedsDisplay];
-        self.answerLabel.layer.cornerRadius = 6;
-        self.answerLabel.layer.backgroundColor = [UIColor colorWithRed:247.0/255 green:82.0/255 blue:28.0/255 alpha:1].CGColor;
-        //answerLabel.backgroundColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:0.6];
-        [self.imageView addSubview:self.answerLabel];
+        if ([self.answer length] > 0) {
+            self.answerLabel = [[UILabel alloc] initWithFrame:CGRectMake(FOCUS_RECT_X, self.view.bounds.size.height-[self focusRectYBottom]+10, self.view.bounds.size.width-2*FOCUS_RECT_X, [self focusRectYBottom]-20)];
+            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+            paragraphStyle.alignment = NSTextAlignmentCenter;
+            NSAttributedString *labelValue = [[NSAttributedString alloc] initWithString:self.answer
+                                                                             attributes:@{NSForegroundColorAttributeName: [UIColor colorWithRed:1 green:1 blue:1 alpha:0.7],
+                                                                                          NSStrokeWidthAttributeName: @(0.0),
+                                                                                          NSStrokeColorAttributeName:[UIColor redColor],
+                                                                                          NSFontAttributeName: [UIFont boldSystemFontOfSize:MIN([self focusRectYBottom]-25, 400/[self.answer length])],
+                                                                                          NSParagraphStyleAttributeName:paragraphStyle }];
+            
+            self.answerLabel.attributedText = labelValue;
+            [self.answerLabel setNeedsDisplay];
+            self.answerLabel.layer.cornerRadius = 6;
+            self.answerLabel.layer.backgroundColor = [UIColor colorWithRed:247.0/255 green:82.0/255 blue:28.0/255 alpha:1].CGColor;
+            //answerLabel.backgroundColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:0.6];
+            [self.imageView addSubview:self.answerLabel];
+        }
     });
 }
 
@@ -724,7 +756,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     int x = FOCUS_RECT_X + symbol.x * self.imageView.bounds.size.width  / self.image.size.width;
     //NSLog(@"image size: %f %f", self.image.size.width, self.image.size.height);
     //NSLog(@"imageView size: %f %f", self.imageView.bounds.size.width, self.imageView.bounds.size.height);
-    int y = FOCUS_RECT_Y + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
+    int y = [self focusRectY] + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
     NSLog(@"x: %d, y: %d, padding: %d", x, y, [self padding]);
     SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.fontSize*0.55, self.fontSize*0.8)];
     
