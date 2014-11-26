@@ -40,7 +40,11 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="noX-Wb-Vt0">
-                        <barButtonItem key="rightBarButtonItem" title="ⓘ" id="fbA-BF-PBP"/>
+                        <barButtonItem key="rightBarButtonItem" title="ⓘ" id="fbA-BF-PBP">
+                            <connections>
+                                <segue destination="YqK-Zy-Yuh" kind="presentation" id="WCK-2f-F2u"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <nil key="simulatedTopBarMetrics"/>
                     <nil key="simulatedBottomBarMetrics"/>
@@ -62,6 +66,43 @@
                 </panGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="1106" y="297"/>
+        </scene>
+        <!--Info View Controller-->
+        <scene sceneID="fEN-Xg-Jht">
+            <objects>
+                <viewController id="YqK-Zy-Yuh" customClass="InfoViewController" customModule="JotCalculator" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="XVI-Wt-GsF"/>
+                        <viewControllerLayoutGuide type="bottom" id="k0B-Ak-Kxv"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="HSH-7i-HKF">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2E9-hm-zD2">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" red="0.97254901959999995" green="0.4039215686" blue="0.1215686275" alpha="1" colorSpace="calibratedRGB"/>
+                                <connections>
+                                    <outlet property="delegate" destination="YqK-Zy-Yuh" id="TZV-ey-AXb"/>
+                                </connections>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="2E9-hm-zD2" secondAttribute="trailing" id="5Al-mg-ODW"/>
+                            <constraint firstItem="2E9-hm-zD2" firstAttribute="top" secondItem="HSH-7i-HKF" secondAttribute="top" id="QE1-iX-cax"/>
+                            <constraint firstItem="2E9-hm-zD2" firstAttribute="bottom" secondItem="k0B-Ak-Kxv" secondAttribute="top" id="b6C-Gu-KdR"/>
+                            <constraint firstItem="2E9-hm-zD2" firstAttribute="leading" secondItem="HSH-7i-HKF" secondAttribute="leading" id="hdl-s7-qPQ"/>
+                        </constraints>
+                    </view>
+                    <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
+                    <connections>
+                        <outlet property="scrollView" destination="2E9-hm-zD2" id="CCp-Uw-klx"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="IZ6-iz-aJd" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1826" y="298"/>
         </scene>
         <!--Main View Controller-->
         <scene sceneID="kdx-9R-oX3">

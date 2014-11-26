@@ -43,6 +43,7 @@
 		5585FB471A1F2E6800EA5CFB /* Torch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5585FB461A1F2E6800EA5CFB /* Torch.framework */; };
 		5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5585FB491A21125C00EA5CFB /* SymbolView.m */; };
 		558DDD141A24B8D600395FFA /* imgs in Resources */ = {isa = PBXBuildFile; fileRef = 558DDD131A24B8D600395FFA /* imgs */; };
+		55B88A8E1A25F9B300300CA1 /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +106,9 @@
 		5585FB481A21125C00EA5CFB /* SymbolView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SymbolView.h; sourceTree = "<group>"; };
 		5585FB491A21125C00EA5CFB /* SymbolView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SymbolView.m; sourceTree = "<group>"; };
 		558DDD131A24B8D600395FFA /* imgs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = imgs; sourceTree = "<group>"; };
+		55A4B50D1A26134E0043646E /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
+		55B88A8C1A25F9B200300CA1 /* JotCalculator-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotCalculator-Bridging-Header.h"; sourceTree = "<group>"; };
+		55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +173,7 @@
 				5585FB401A1F29AA00EA5CFB /* framework */,
 				552975991A247C1A00F0D12B /* MainViewController.h */,
 				5529759A1A247C1A00F0D12B /* MainViewController.m */,
+				55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */,
 				5585FA001A1F258800EA5CFB /* RecognitionViewController.h */,
 				5585FA011A1F258800EA5CFB /* RecognitionViewController.mm */,
 				5585FA031A1F25EC00EA5CFB /* ImageProcessor.h */,
@@ -186,6 +191,7 @@
 				554960D71A1269280019E491 /* Images.xcassets */,
 				554960D91A1269280019E491 /* LaunchScreen.xib */,
 				554960CA1A1269270019E491 /* Supporting Files */,
+				55B88A8C1A25F9B200300CA1 /* JotCalculator-Bridging-Header.h */,
 			);
 			path = jot;
 			sourceTree = "<group>";
@@ -196,6 +202,7 @@
 				554960CE1A1269270019E491 /* AppDelegate.h */,
 				554960CF1A1269280019E491 /* AppDelegate.m */,
 				554960CB1A1269270019E491 /* Info.plist */,
+				55A4B50D1A26134E0043646E /* MyPlayground.playground */,
 				554960CC1A1269270019E491 /* main.m */,
 			);
 			name = "Supporting Files";
@@ -365,6 +372,7 @@
 				5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */,
 				554960D01A1269280019E491 /* AppDelegate.m in Sources */,
 				5529759B1A247C1A00F0D12B /* MainViewController.m in Sources */,
+				55B88A8E1A25F9B300300CA1 /* InfoViewController.swift in Sources */,
 				5585FA021A1F258800EA5CFB /* RecognitionViewController.mm in Sources */,
 				5585FA051A1F25EC00EA5CFB /* ImageProcessor.mm in Sources */,
 				5585FA081A1F25F200EA5CFB /* Symbol.mm in Sources */,
@@ -490,6 +498,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -501,6 +510,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = JotCalculator;
+				SWIFT_OBJC_BRIDGING_HEADER = "jot/JotCalculator-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -508,6 +519,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -519,6 +531,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = JotCalculator;
+				SWIFT_OBJC_BRIDGING_HEADER = "jot/JotCalculator-Bridging-Header.h";
 			};
 			name = Release;
 		};
