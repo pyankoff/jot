@@ -44,6 +44,7 @@
 		5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5585FB491A21125C00EA5CFB /* SymbolView.m */; };
 		558DDD141A24B8D600395FFA /* imgs in Resources */ = {isa = PBXBuildFile; fileRef = 558DDD131A24B8D600395FFA /* imgs */; };
 		55B88A8E1A25F9B300300CA1 /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */; };
+		55E4220E1A264F4800231981 /* AAPLPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55E4220D1A264F4800231981 /* AAPLPreviewView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,6 +110,8 @@
 		55A4B50D1A26134E0043646E /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
 		55B88A8C1A25F9B200300CA1 /* JotCalculator-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotCalculator-Bridging-Header.h"; sourceTree = "<group>"; };
 		55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
+		55E4220C1A264F4800231981 /* AAPLPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLPreviewView.h; sourceTree = "<group>"; };
+		55E4220D1A264F4800231981 /* AAPLPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLPreviewView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +177,8 @@
 				552975991A247C1A00F0D12B /* MainViewController.h */,
 				5529759A1A247C1A00F0D12B /* MainViewController.m */,
 				55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */,
+				55E4220C1A264F4800231981 /* AAPLPreviewView.h */,
+				55E4220D1A264F4800231981 /* AAPLPreviewView.m */,
 				5585FA001A1F258800EA5CFB /* RecognitionViewController.h */,
 				5585FA011A1F258800EA5CFB /* RecognitionViewController.mm */,
 				5585FA031A1F25EC00EA5CFB /* ImageProcessor.h */,
@@ -375,6 +380,7 @@
 				55B88A8E1A25F9B300300CA1 /* InfoViewController.swift in Sources */,
 				5585FA021A1F258800EA5CFB /* RecognitionViewController.mm in Sources */,
 				5585FA051A1F25EC00EA5CFB /* ImageProcessor.mm in Sources */,
+				55E4220E1A264F4800231981 /* AAPLPreviewView.m in Sources */,
 				5585FA081A1F25F200EA5CFB /* Symbol.mm in Sources */,
 				554960CD1A1269270019E491 /* main.m in Sources */,
 			);

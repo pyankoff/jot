@@ -21,7 +21,7 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        pageImages = [UIImage(named: "imgs/iphone0.png")!,
+        pageImages = [UIImage(named: "imgs/finger1.jpg")!,
             UIImage(named: "imgs/iphone0.png")!,
             UIImage(named: "imgs/iphone0.png")!,
             UIImage(named: "imgs/iphone0.png")!]

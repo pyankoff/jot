@@ -14,6 +14,7 @@
 #import <mach/mach_time.h>
 #import "SymbolView.h"
 #import "Parse/Parse.h"
+#import "AAPLPreviewView.h"
 
 @interface RecognitionViewController ()  <UIApplicationDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
@@ -40,7 +41,17 @@
 @property (nonatomic) int initialSymbolNumber;
 
 // Camera
-@property (strong, nonatomic) AVCaptureSession *captureSession;
+@property (nonatomic) dispatch_queue_t sessionQueue; // Communicate with the session and other session objects on this queue.
+@property (strong, nonatomic) AVCaptureSession *session;
+@property (weak, nonatomic) IBOutlet AAPLPreviewView *previewView;
+@property (nonatomic) AVCaptureDeviceInput *videoDeviceInput;
+@property (nonatomic) AVCaptureDevice *videoDevice;
+@property (nonatomic, getter = isDeviceAuthorized) BOOL deviceAuthorized;
+@property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
+
+
+
+
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
 @property (strong, nonatomic) dispatch_queue_t queue;
 @property (strong, nonatomic) CAShapeLayer *focusRect;
@@ -123,6 +134,7 @@
 -(UIStatusBarStyle)preferredStatusBarStyle{
     return UIStatusBarStyleLightContent;
 }
+
 - (UILabel *)statusLabel {
     if (!_statusLabel) {
         _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(FOCUS_RECT_X, [self focusRectY]-40, self.view.bounds.size.width-2*FOCUS_RECT_X, [self focusRectY]-20)];
@@ -137,9 +149,14 @@
 - (void)viewDidLoad {
     
     [super viewDidLoad];
+    
+    self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
     if ([[AVCaptureDevice devices] count] > 0) {
         self.onSimulator = NO;
-        [self setupCaptureSession];
+        
+        [self createSession];
+        
     } else {
         NSLog(@"no camera");
         self.onSimulator = YES;
@@ -152,146 +169,166 @@
     [self toggleRecognition];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[self.imageView layer] addSublayer:self.focusRect];
+    if (!self.onSimulator) {
+        dispatch_async([self sessionQueue], ^{
+            [[self session] startRunning];
+        });
+    }
+}
 
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+- (void)createSession {
+    
+    // Create the AVCaptureSession
+    AVCaptureSession *session = [[AVCaptureSession alloc] init];
+    [self setSession:session];
+    
+    // Set up preview
+    [[self previewView] setSession:session];
+    
+    // Check for device authorization
+    [self checkDeviceAuthorizationStatus];
+    
+    // In general it is not safe to mutate an AVCaptureSession or any of its inputs, outputs, or connections from multiple threads at the same time.
+    // Why not do all of this on the main queue?
+    // -[AVCaptureSession startRunning] is a blocking call which can take a long time. We dispatch session setup to the sessionQueue so that the main queue isn't blocked (which keeps the UI responsive).
+    
+    dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+    [self setSessionQueue:sessionQueue];
+    
+    dispatch_async(sessionQueue, ^{
+        [self setBackgroundRecordingID:UIBackgroundTaskInvalid];
+        
+        NSError *error = nil;
+        
+        AVCaptureDevice *videoDevice = [RecognitionViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
+        AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+        
+        if (error)
+        {
+            NSLog(@"%@", error);
+        }
+        
+        [[self session] beginConfiguration];
+        
+        if ([session canAddInput:videoDeviceInput])
+        {
+            [session addInput:videoDeviceInput];
+            [self setVideoDeviceInput:videoDeviceInput];
+            [self setVideoDevice:videoDeviceInput.device];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Why are we dispatching this to the main queue?
+                // Because AVCaptureVideoPreviewLayer is the backing layer for our preview view and UIView can only be manipulated on main thread.
+                // Note: As an exception to the above rule, it is not necessary to serialize video orientation changes on the AVCaptureVideoPreviewLayer’s connection with other session manipulation.
+                
+                [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+            });
+        }
+        
+        session.sessionPreset = AVCaptureSessionPresetiFrame960x540;
+        
+        // Create a VideoDataOutput and add it to the session
+        AVCaptureVideoDataOutput *output = [[AVCaptureVideoDataOutput alloc] init];
+        [session addOutput:output];
+        
+        // Configure your output.
+        dispatch_queue_t queue = dispatch_queue_create("myQueue", NULL);
+        [output setSampleBufferDelegate:self queue:queue];
+        
+        // Specify the pixel format
+        output.videoSettings =
+        [NSDictionary dictionaryWithObject:
+         [NSNumber numberWithInt:kCVPixelFormatType_32BGRA]
+                                    forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+        
+        
+        [[self session] commitConfiguration];
+    });
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)toInterfaceOrientation];
+}
+
+
+#pragma mark Utilities
+
++ (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
+    AVCaptureDevice *captureDevice = [devices firstObject];
+    
+    for (AVCaptureDevice *device in devices)
+    {
+        if ([device position] == position)
+        {
+            captureDevice = device;
+            break;
+        }
+    }
+    
+    return captureDevice;
+}
+
+
+- (void)checkDeviceAuthorizationStatus
+{
+    NSString *mediaType = AVMediaTypeVideo;
+    
+    [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+        if (granted)
+        {
+            [self setDeviceAuthorized:YES];
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[[UIAlertView alloc] initWithTitle:@"JotCalculator"
+                                            message:@"JotCalculator doesn't have permission to use the Camera"
+                                           delegate:self
+                                  cancelButtonTitle:@"OK"
+                                  otherButtonTitles:nil] show];
+                [self setDeviceAuthorized:NO];
+            });
+        }
+    }];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     CGRect layerRect = CGRectMake(0, 0, size.width, size.height);
     CGPoint center = CGPointMake(CGRectGetMidX(layerRect),
                                   CGRectGetMidY(layerRect));
-    [self.previewLayer setBounds:layerRect];
-    [self.previewLayer setPosition:center];
-    self.previewLayer.connection.videoOrientation = [self currentOrientation];
 
-    [self.focusRect removeFromSuperlayer];
+    //[self.focusRect removeFromSuperlayer];
     self.focusRect = [self drawFocusRect:size];
-    [[self.imageView layer] addSublayer:self.focusRect];
+    //[[self.imageView layer] addSublayer:self.focusRect];
     [self drawStatus];
     [self drawExpression];
     [self drawAnswer];
-}
-
-- (AVCaptureVideoOrientation)currentOrientation {
-    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
-    
-    if ( deviceOrientation == UIDeviceOrientationLandscapeLeft )
-        return AVCaptureVideoOrientationLandscapeRight;
-    else if ( deviceOrientation == UIDeviceOrientationLandscapeRight )
-        return AVCaptureVideoOrientationLandscapeLeft;
-    else if( deviceOrientation == UIDeviceOrientationPortrait)
-        return AVCaptureVideoOrientationPortrait;
-    else if( deviceOrientation == UIDeviceOrientationPortraitUpsideDown)
-        return AVCaptureVideoOrientationPortraitUpsideDown;
-    return AVCaptureVideoOrientationPortrait;
-}
+}*/
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     [self sendSymbolsToParse];
 }
 
-#pragma mark - camera
-
-// Create and configure a capture session and start it running
-- (void)setupCaptureSession
-{
-    NSError *error = nil;
-
-    AVCaptureSession *session = [[AVCaptureSession alloc] init];
-    
-    session.sessionPreset = AVCaptureSessionPresetiFrame960x540;
-
-    AVCaptureDevice *device = [AVCaptureDevice
-                               defaultDeviceWithMediaType:AVMediaTypeVideo];
-    
-    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device
-                                                                        error:&error];
-    if (!input) {
-        // Handling the error appropriately.
-    }
-    [session addInput:input];
-    
-    // Create a VideoDataOutput and add it to the session
-    AVCaptureVideoDataOutput *output = [[AVCaptureVideoDataOutput alloc] init];
-    [session addOutput:output];
-    
-    // Configure your output.
-    dispatch_queue_t queue = dispatch_queue_create("myQueue", NULL);
-    [output setSampleBufferDelegate:self queue:queue];
-    
-    // Specify the pixel format
-    output.videoSettings =
-    [NSDictionary dictionaryWithObject:
-     [NSNumber numberWithInt:kCVPixelFormatType_32BGRA]
-                                forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-    
-    
-    // Start the session running to start the flow of data
-    [self startCapturingWithSession:session];
-    
-    // Assign session to an ivar.
-    self.captureSession = session;
-}
-
-- (void)startCapturingWithSession: (AVCaptureSession *) captureSession
-{
-    //NSLog(@"Adding video preview layer");
-    [self setPreviewLayer:[[AVCaptureVideoPreviewLayer alloc] initWithSession:captureSession]];
-    
-    [self.previewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-
-    CGRect layerRect = [[[self view] layer] bounds];
-    [self.previewLayer setBounds:layerRect];
-    [self.previewLayer setPosition:CGPointMake(CGRectGetMidX(layerRect),
-                                               CGRectGetMidY(layerRect))];
-
-    UIView *CameraView = [[UIView alloc] init];
-    [self.view addSubview:CameraView];
-    [self.view sendSubviewToBack:CameraView];
-    
-    [[CameraView layer] addSublayer:self.previewLayer];
-    [[self.imageView layer] addSublayer:self.focusRect];
-    
-    //----- START THE CAPTURE SESSION RUNNING -----
-    [captureSession startRunning];
-}
-
-// Create a UIImage from sample buffer data
-- (UIImage *) imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer
-{
-    // Get a CMSampleBuffer's Core Video image buffer for the media data
-    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    // Lock the base address of the pixel buffer
-    CVPixelBufferLockBaseAddress(imageBuffer, 0);
-    
-    // Get the number of bytes per row for the pixel buffer
-    void *baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
-    
-    // Get the number of bytes per row for the pixel buffer
-    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-    // Get the pixel buffer width and height
-    size_t width = CVPixelBufferGetWidth(imageBuffer);
-    size_t height = CVPixelBufferGetHeight(imageBuffer);
-    
-    // Create a device-dependent RGB color space
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    
-    // Create a bitmap graphics context with the sample buffer data
-    CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8,
-                                                 bytesPerRow, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
-    // Create a Quartz image from the pixel data in the bitmap graphics context
-    CGImageRef quartzImage = CGBitmapContextCreateImage(context);
-    // Unlock the pixel buffer
-    CVPixelBufferUnlockBaseAddress(imageBuffer,0);
-    
-    // Free up the context and color space
-    CGContextRelease(context);
-    
-    // Create an image object from the Quartz image
-    UIImage *image = [UIImage imageWithCGImage:quartzImage];
-    
-    // Release the Quartz image
-    CGImageRelease(quartzImage);
-    
-    return (image);
-}
+#pragma mark - camera delegate
 
 // Delegate routine that is called when a sample buffer was written
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
@@ -299,9 +336,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
 {
     // Create a UIImage from the sample buffer data
-    [connection setVideoOrientation:[self currentOrientation]];
-    self.image = [self imageFromSampleBuffer:sampleBuffer];
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    self.image = [self.imageProcessor imageFromSampleBuffer:sampleBuffer orientation:orientation];
 }
+
+
+
 
 
 #pragma mark - support UI
@@ -439,7 +479,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         self.imageView.contentMode = UIViewContentModeScaleAspectFill;
         [self.imageView setImage:self.image];
         
-        [self saveToParse];
+        //[self saveToParse];
     } else {
         [self sendSymbolsToParse];
         self.symbols = nil;
@@ -474,6 +514,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             }
         }
     });
+
 }
 
 - (void)recognize {

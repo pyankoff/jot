@@ -16,5 +16,6 @@ using namespace cv;
 
 - (NSMutableArray *) findDigits:(UIImage*)image;
 - (NSMutableArray *) cvMat2MutableArray:(Mat) mat;
+- (UIImage *) imageFromSampleBuffer:(CMSampleBufferRef)sampleBuffer orientation:(UIInterfaceOrientation)orientation;
 
 @end
