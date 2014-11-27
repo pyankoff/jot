@@ -174,8 +174,12 @@
     // Create a bitmap graphics context with the sample buffer data
     CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8,
                                                  bytesPerRow, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+    
     // Create a Quartz image from the pixel data in the bitmap graphics context
     CGImageRef quartzImage = CGBitmapContextCreateImage(context);
+    
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), quartzImage);
+    
     // Unlock the pixel buffer
     CVPixelBufferUnlockBaseAddress(imageBuffer,0);
     
@@ -183,27 +187,56 @@
     CGContextRelease(context);
     
     // Create an image object from the Quartz image
-    UIImage *image = [UIImage imageWithCGImage:quartzImage];
+    UIImage *image = [self rotateImage:quartzImage
+                              rotation:orientation];
     
     // Release the Quartz image
     CGImageRelease(quartzImage);
     
-    UIImage *resultImage = [[UIImage alloc] initWithCGImage: image.CGImage
-                                                      scale: 1.0
-                                                orientation: [self getOrientation:orientation]];
-    
-    return resultImage;
+    return image;
 }
 
-- (UIImageOrientation)getOrientation:(UIInterfaceOrientation)orientation {
-    if (orientation == UIInterfaceOrientationLandscapeLeft) {
-        return UIImageOrientationDown;
-    } else if (orientation == UIInterfaceOrientationPortrait) {
-        return UIImageOrientationRight;
-    } else if (orientation == UIInterfaceOrientationLandscapeRight) {
-        return UIImageOrientationUp;
+- (UIImage *)rotateImage:(CGImageRef)input rotation:(UIInterfaceOrientation)orientation {
+    CGFloat width, height;
+    
+    width = CGImageGetHeight(input);
+    height = CGImageGetWidth(input);
+    
+    if (orientation == UIInterfaceOrientationPortrait) {
+        UIGraphicsBeginImageContext(CGSizeMake(width, height));
     } else {
-        return UIImageOrientationLeft;
+        UIGraphicsBeginImageContext(CGSizeMake(height, width));
+    }
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextTranslateCTM(context, CGBitmapContextGetWidth(context)/2, CGBitmapContextGetHeight(context)/2);
+    CGContextRotateCTM(context, [self getRotation:orientation]);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    
+    CGContextDrawImage(context, CGRectMake(-height/2, -width/2, height, width), input);
+    
+
+    
+    CGImageRef imageRef = CGBitmapContextCreateImage(context);
+    
+    UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
+    
+    CFRelease(imageRef);
+    CGContextRelease(context);
+    
+    return finalImage;
+}
+
+- (CGFloat)getRotation:(UIInterfaceOrientation)orientation {
+    if (orientation == UIInterfaceOrientationLandscapeRight) {
+        return 0.0/180.0*M_PI;
+    } else if (orientation == UIInterfaceOrientationLandscapeLeft) {
+        return 180.0/180.0*M_PI;
+    } else if (orientation == UIInterfaceOrientationPortrait) {
+        return 90.0/180.0*M_PI;
+    } else {
+        return 0; // dummy
     }
 }
 

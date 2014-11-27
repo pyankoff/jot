@@ -49,10 +49,6 @@
 @property (nonatomic, getter = isDeviceAuthorized) BOOL deviceAuthorized;
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
 
-
-
-
-@property (strong, nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
 @property (strong, nonatomic) dispatch_queue_t queue;
 @property (strong, nonatomic) CAShapeLayer *focusRect;
 
@@ -474,12 +470,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         NSLog(@"recognition stopped");
         self.recognitionOn = NO;
         
-        //[self.captureSession stopRunning];
+        [self.session stopRunning];
         
-        self.imageView.contentMode = UIViewContentModeScaleAspectFill;
+        self.imageView.contentMode = UIViewContentModeScaleAspectFit;
         [self.imageView setImage:self.image];
         
-        //[self saveToParse];
+        [self saveToParse];
     } else {
         [self sendSymbolsToParse];
         self.symbols = nil;
@@ -489,6 +485,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             [self.imageView setImage:self.image];
         } else {
             [self.imageView setImage:nil];
+            self.image = nil;
         }
         [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
         
@@ -497,7 +494,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         self.recognitionOn = YES;
         [self startRecognition];
         
-        //[self.captureSession startRunning]; // blinks, how to fix?
+        [self.session startRunning]; // blinks, how to fix?
     }
     [self animateStatus];
 }
@@ -750,6 +747,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     CGRect cropRect = CGRectMake(x, y, width, height);
     CGImageRef imageRef = CGImageCreateWithImageInRect([self.image CGImage], cropRect);
+    //Rotation from buffer doesn't apply to underlying CGimage here, so we have to apply same rotation here
     UIImage *croppedImage = [UIImage imageWithCGImage:imageRef];
     CGImageRelease(imageRef);
     
