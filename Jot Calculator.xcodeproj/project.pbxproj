@@ -71,7 +71,7 @@
 		552975971A21BACA00F0D12B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		552975991A247C1A00F0D12B /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		5529759A1A247C1A00F0D12B /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
-		554960C71A1269270019E491 /* JotCalculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JotCalculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		554960C71A1269270019E491 /* Jot Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Jot Calculator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		554960CB1A1269270019E491 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		554960CC1A1269270019E491 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		554960CE1A1269270019E491 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -79,7 +79,7 @@
 		554960D51A1269280019E491 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		554960D71A1269280019E491 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		554960DA1A1269280019E491 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		554960E01A1269280019E491 /* JotCalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JotCalculatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		554960E01A1269280019E491 /* Jot CalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Jot CalculatorTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		554960E51A1269280019E491 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		554960E61A1269280019E491 /* jotTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jotTests.m; sourceTree = "<group>"; };
 		5585F9FA1A1F252100EA5CFB /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -164,8 +164,8 @@
 		554960C81A1269270019E491 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				554960C71A1269270019E491 /* JotCalculator.app */,
-				554960E01A1269280019E491 /* JotCalculatorTests.xctest */,
+				554960C71A1269270019E491 /* Jot Calculator.app */,
+				554960E01A1269280019E491 /* Jot CalculatorTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -270,9 +270,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		554960C61A1269270019E491 /* JotCalculator */ = {
+		554960C61A1269270019E491 /* Jot Calculator */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 554960EA1A1269280019E491 /* Build configuration list for PBXNativeTarget "JotCalculator" */;
+			buildConfigurationList = 554960EA1A1269280019E491 /* Build configuration list for PBXNativeTarget "Jot Calculator" */;
 			buildPhases = (
 				554960C31A1269270019E491 /* Sources */,
 				554960C41A1269270019E491 /* Frameworks */,
@@ -282,14 +282,14 @@
 			);
 			dependencies = (
 			);
-			name = JotCalculator;
+			name = "Jot Calculator";
 			productName = jot;
-			productReference = 554960C71A1269270019E491 /* JotCalculator.app */;
+			productReference = 554960C71A1269270019E491 /* Jot Calculator.app */;
 			productType = "com.apple.product-type.application";
 		};
-		554960DF1A1269280019E491 /* JotCalculatorTests */ = {
+		554960DF1A1269280019E491 /* Jot CalculatorTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 554960ED1A1269280019E491 /* Build configuration list for PBXNativeTarget "JotCalculatorTests" */;
+			buildConfigurationList = 554960ED1A1269280019E491 /* Build configuration list for PBXNativeTarget "Jot CalculatorTests" */;
 			buildPhases = (
 				554960DC1A1269280019E491 /* Sources */,
 				554960DD1A1269280019E491 /* Frameworks */,
@@ -300,9 +300,9 @@
 			dependencies = (
 				554960E21A1269280019E491 /* PBXTargetDependency */,
 			);
-			name = JotCalculatorTests;
+			name = "Jot CalculatorTests";
 			productName = jotTests;
-			productReference = 554960E01A1269280019E491 /* JotCalculatorTests.xctest */;
+			productReference = 554960E01A1269280019E491 /* Jot CalculatorTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -324,7 +324,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 554960C21A1269270019E491 /* Build configuration list for PBXProject "JotCalculator" */;
+			buildConfigurationList = 554960C21A1269270019E491 /* Build configuration list for PBXProject "Jot Calculator" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -337,8 +337,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				554960C61A1269270019E491 /* JotCalculator */,
-				554960DF1A1269280019E491 /* JotCalculatorTests */,
+				554960C61A1269270019E491 /* Jot Calculator */,
+				554960DF1A1269280019E491 /* Jot CalculatorTests */,
 			);
 		};
 /* End PBXProject section */
@@ -399,7 +399,7 @@
 /* Begin PBXTargetDependency section */
 		554960E21A1269280019E491 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 554960C61A1269270019E491 /* JotCalculator */;
+			target = 554960C61A1269270019E491 /* Jot Calculator */;
 			targetProxy = 554960E11A1269280019E491 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -515,7 +515,7 @@
 				INFOPLIST_FILE = jot/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_NAME = JotCalculator;
+				PRODUCT_NAME = "Jot Calculator";
 				SWIFT_OBJC_BRIDGING_HEADER = "jot/JotCalculator-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -536,7 +536,7 @@
 				INFOPLIST_FILE = jot/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_NAME = JotCalculator;
+				PRODUCT_NAME = "Jot Calculator";
 				SWIFT_OBJC_BRIDGING_HEADER = "jot/JotCalculator-Bridging-Header.h";
 			};
 			name = Release;
@@ -555,7 +555,7 @@
 				);
 				INFOPLIST_FILE = jotTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = JotCalculatorTests;
+				PRODUCT_NAME = "Jot CalculatorTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jot.app/jot";
 			};
 			name = Debug;
@@ -570,7 +570,7 @@
 				);
 				INFOPLIST_FILE = jotTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = JotCalculatorTests;
+				PRODUCT_NAME = "Jot CalculatorTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jot.app/jot";
 			};
 			name = Release;
@@ -578,7 +578,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		554960C21A1269270019E491 /* Build configuration list for PBXProject "JotCalculator" */ = {
+		554960C21A1269270019E491 /* Build configuration list for PBXProject "Jot Calculator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				554960E81A1269280019E491 /* Debug */,
@@ -587,7 +587,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		554960EA1A1269280019E491 /* Build configuration list for PBXNativeTarget "JotCalculator" */ = {
+		554960EA1A1269280019E491 /* Build configuration list for PBXNativeTarget "Jot Calculator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				554960EB1A1269280019E491 /* Debug */,
@@ -596,7 +596,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		554960ED1A1269280019E491 /* Build configuration list for PBXNativeTarget "JotCalculatorTests" */ = {
+		554960ED1A1269280019E491 /* Build configuration list for PBXNativeTarget "Jot CalculatorTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				554960EE1A1269280019E491 /* Debug */,
