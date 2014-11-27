@@ -27,6 +27,10 @@
 @property (strong, nonatomic) UILabel *answerLabel;
 @property (nonatomic) int fontSize;
 
+// Flash
+@property (weak, nonatomic) IBOutlet UIButton *flashButton;
+@property (nonatomic) BOOL flashOn;
+
 // Data
 @property (strong, nonatomic) NSArray *symbols;
 @property (strong, nonatomic) NSArray *signsIndexes;
@@ -87,6 +91,14 @@
     }
 }
 
+/*
+- (UIImageView *)imageView {
+    if (!_imageView) {
+        _imageView = [[UIImageView alloc] init];
+    }
+    return _imageView;
+}
+*/
 - (NSString *)signFromNumber:(int)number {
     NSDictionary *signs = @{@1: @"/", @2: @"*", @3: @"+", @4: @"-"};
     return [signs objectForKey:@(number)];
@@ -147,6 +159,7 @@
     [super viewDidLoad];
     
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
     if ([[AVCaptureDevice devices] count] > 0) {
         self.onSimulator = NO;
@@ -161,14 +174,18 @@
     self.queue = dispatch_queue_create("recognitionQueue", NULL);
     [self.torch initialize];
     
+    self.focusRect = [self drawFocusRect];
+    [[self.imageView layer] addSublayer:self.focusRect];
+    
     self.recognitionOn = NO;
+    self.flashOn = NO;
     [self toggleRecognition];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [[self.imageView layer] addSublayer:self.focusRect];
+    
     if (!self.onSimulator) {
         dispatch_async([self sessionQueue], ^{
             [[self session] startRunning];
@@ -249,6 +266,17 @@
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)toInterfaceOrientation];
+    
+    [self.focusRect removeFromSuperlayer];
+    self.focusRect = [self drawFocusRect];
+    [[self.imageView layer] addSublayer:self.focusRect];
+    
+    if (self.recognitionOn) {
+        [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+    } else {
+        [self drawExpression];
+        [self drawAnswer];
+    }
 }
 
 
@@ -295,31 +323,6 @@
     }];
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-/*- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    CGRect layerRect = CGRectMake(0, 0, size.width, size.height);
-    CGPoint center = CGPointMake(CGRectGetMidX(layerRect),
-                                  CGRectGetMidY(layerRect));
-
-    //[self.focusRect removeFromSuperlayer];
-    self.focusRect = [self drawFocusRect:size];
-    //[[self.imageView layer] addSublayer:self.focusRect];
-    [self drawStatus];
-    [self drawExpression];
-    [self drawAnswer];
-}*/
-
 - (void)applicationWillResignActive:(UIApplication *)application {
     [self sendSymbolsToParse];
 }
@@ -336,17 +339,48 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     self.image = [self.imageProcessor imageFromSampleBuffer:sampleBuffer orientation:orientation];
 }
 
+- (IBAction)toggleLight {
+    // check if flashlight available
+    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
+    if (captureDeviceClass != nil) {
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        if ([device hasTorch] && [device hasFlash]){
+            
+            [device lockForConfiguration:nil];
+            if (!self.flashOn) {
+                [device setTorchMode:AVCaptureTorchModeOn];
+                [device setFlashMode:AVCaptureFlashModeOn];
+                self.flashOn = YES; //define as a variable/property if you need to know status
+            } else {
+                [device setTorchMode:AVCaptureTorchModeOff];
+                [device setFlashMode:AVCaptureFlashModeOff];
+                self.flashOn = NO;
+            }
+            [device unlockForConfiguration];
+        }
+    }
+}
 
 
 
 
 #pragma mark - support UI
 
-- (CAShapeLayer *)drawFocusRect:(CGSize)size {
+- (CAShapeLayer *)drawFocusRect {
     CAShapeLayer *focusRect = [CAShapeLayer layer];
     
-    UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, size.width, size.height)];
-    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(FOCUS_RECT_X, [self focusRectY], size.width-2*FOCUS_RECT_X, size.height-[self focusRectY]-[self focusRectYBottom]) cornerRadius:6];
+    CGFloat width, height;
+    if (!self.focusRect) {
+        width = self.view.bounds.size.width;
+        height = self.view.bounds.size.height;
+    } else {
+        width = self.view.bounds.size.height;
+        height = self.view.bounds.size.width;
+    }
+    
+    
+    UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, width, height)];
+    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(FOCUS_RECT_X, [self focusRectY], width-2*FOCUS_RECT_X, height-[self focusRectY]-[self focusRectYBottom]) cornerRadius:6];
     [path appendPath:holePath];
     [path setUsesEvenOddFillRule:YES];
     NSLog(@"focus rect y: %d", [self focusRectY]);
@@ -358,23 +392,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     focusRect.opacity = 0.15;
     
     return focusRect;
-}
-
-- (CAShapeLayer *)focusRect {
-    if (!_focusRect) {
-        _focusRect = [self drawFocusRect:self.view.bounds.size];
-    }
-    
-    return _focusRect;
-}
-
-- (void)drawStatus {
-    self.statusLabel = nil;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.statusLabel setFrame:CGRectMake(FOCUS_RECT_X, [self focusRectY]-30, self.view.bounds.size.width-2*FOCUS_RECT_X, [self focusRectY]-10)];
-        [self.imageView addSubview:self.statusLabel];
-    });
-    NSLog(@"status added %f %f", self.statusLabel.bounds.size.width, self.statusLabel.bounds.size.height);
 }
 
 - (void)animateStatus {

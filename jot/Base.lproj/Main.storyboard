@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="KhV-bo-0Ph">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Recognition View Controller-->
@@ -25,38 +26,56 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <gestureRecognizers/>
                                 <connections>
-                                    <outletCollection property="gestureRecognizers" destination="tJ2-E5-hE6" appends="YES" id="XRh-a2-0BI"/>
                                     <outletCollection property="gestureRecognizers" destination="RVr-vI-mHH" appends="YES" id="YUj-nh-CDZ"/>
+                                    <outletCollection property="gestureRecognizers" destination="tJ2-E5-hE6" appends="YES" id="XRh-a2-0BI"/>
                                 </connections>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoLight" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Sz2-7t-Nq1">
+                                <rect key="frame" x="562" y="28" width="22" height="22"/>
+                                <color key="tintColor" red="1" green="1" blue="0.99607843139999996" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <segue destination="YqK-Zy-Yuh" kind="presentation" id="ps5-Rl-wGf"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FIu-Po-CLG">
+                                <rect key="frame" x="16" y="28" width="22" height="22"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="22" id="Xzb-be-B7s"/>
+                                    <constraint firstAttribute="height" constant="22" id="tNX-hQ-DVu"/>
+                                </constraints>
+                                <color key="tintColor" red="1" green="1" blue="0.99607843139999996" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" image="light">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="toggleLight" destination="0pz-9x-sfy" eventType="touchUpInside" id="XLt-dP-ipE"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
                         <constraints>
-                            <constraint firstItem="c4K-er-Sde" firstAttribute="top" secondItem="ZYx-Pf-GQY" secondAttribute="top" id="C96-Pw-X09"/>
-                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="top" secondItem="k6F-Su-JSB" secondAttribute="top" id="GeE-po-BGL"/>
-                            <constraint firstItem="c4K-er-Sde" firstAttribute="leading" secondItem="ZYx-Pf-GQY" secondAttribute="leading" id="d44-Bc-O71"/>
-                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="bottom" secondItem="BXc-cZ-9vc" secondAttribute="top" id="h7Z-DN-PQv"/>
-                            <constraint firstItem="c4K-er-Sde" firstAttribute="bottom" secondItem="BXc-cZ-9vc" secondAttribute="top" id="koG-KH-vEI"/>
-                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="leading" secondItem="k6F-Su-JSB" secondAttribute="leading" id="pqg-kd-YFi"/>
-                            <constraint firstItem="c4K-er-Sde" firstAttribute="trailing" secondItem="ZYx-Pf-GQY" secondAttribute="trailing" id="uDR-rF-WBz"/>
-                            <constraint firstAttribute="trailing" secondItem="ZYx-Pf-GQY" secondAttribute="trailing" id="z8d-we-tk4"/>
+                            <constraint firstItem="FIu-Po-CLG" firstAttribute="top" secondItem="f9p-2G-xhC" secondAttribute="bottom" constant="8" symbolic="YES" id="3Rs-oo-9vb"/>
+                            <constraint firstItem="c4K-er-Sde" firstAttribute="bottom" secondItem="BXc-cZ-9vc" secondAttribute="top" id="6KS-oh-b1p"/>
+                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="leading" secondItem="c4K-er-Sde" secondAttribute="leading" id="DDS-wz-XpY"/>
+                            <constraint firstItem="c4K-er-Sde" firstAttribute="leading" secondItem="k6F-Su-JSB" secondAttribute="leading" id="OFu-CQ-nXd"/>
+                            <constraint firstItem="c4K-er-Sde" firstAttribute="top" secondItem="k6F-Su-JSB" secondAttribute="top" id="VjR-1d-UfV"/>
+                            <constraint firstItem="FIu-Po-CLG" firstAttribute="top" secondItem="Sz2-7t-Nq1" secondAttribute="top" id="ZIH-VT-GRy"/>
+                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="top" secondItem="c4K-er-Sde" secondAttribute="top" id="a5h-oj-lMS"/>
+                            <constraint firstItem="FIu-Po-CLG" firstAttribute="leading" secondItem="k6F-Su-JSB" secondAttribute="leadingMargin" id="aHn-iH-cMn"/>
+                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="bottom" secondItem="BXc-cZ-9vc" secondAttribute="top" id="eJL-le-Vx8"/>
+                            <constraint firstAttribute="trailing" secondItem="c4K-er-Sde" secondAttribute="trailing" id="mmn-Cd-AJx"/>
+                            <constraint firstItem="Sz2-7t-Nq1" firstAttribute="trailing" secondItem="k6F-Su-JSB" secondAttribute="trailingMargin" id="mo8-ll-EpA"/>
+                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="trailing" secondItem="c4K-er-Sde" secondAttribute="trailing" id="oJ3-8g-6sY"/>
                         </constraints>
-                        <connections>
-                            <outletCollection property="gestureRecognizers" destination="tJ2-E5-hE6" appends="YES" id="Zaw-pi-ffx"/>
-                        </connections>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" id="noX-Wb-Vt0">
-                        <barButtonItem key="rightBarButtonItem" title="ⓘ" id="fbA-BF-PBP">
-                            <connections>
-                                <segue destination="YqK-Zy-Yuh" kind="presentation" id="WCK-2f-F2u"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <nil key="simulatedTopBarMetrics"/>
-                    <nil key="simulatedBottomBarMetrics"/>
+                    <navigationItem key="navigationItem" id="noX-Wb-Vt0"/>
                     <connections>
+                        <outlet property="flashButton" destination="FIu-Po-CLG" id="1r0-78-jC2"/>
                         <outlet property="imageView" destination="ZYx-Pf-GQY" id="3BD-mK-B6n"/>
                         <outlet property="previewView" destination="c4K-er-Sde" id="fYB-9G-vfO"/>
                         <outlet property="tapRecognizer" destination="tJ2-E5-hE6" id="yji-1n-rJJ"/>
@@ -74,7 +93,7 @@
                     </connections>
                 </panGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="1106" y="297"/>
+            <point key="canvasLocation" x="1096" y="298"/>
         </scene>
         <!--Info View Controller-->
         <scene sceneID="fEN-Xg-Jht">
@@ -116,9 +135,10 @@
         <!--Main View Controller-->
         <scene sceneID="kdx-9R-oX3">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="KhV-bo-0Ph" customClass="MainViewController" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="KhV-bo-0Ph" customClass="MainViewController" sceneMemberID="viewController">
                     <toolbarItems/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
+                    <nil key="simulatedTopBarMetrics"/>
                     <nil key="simulatedBottomBarMetrics"/>
                     <navigationBar key="navigationBar" opaque="NO" alpha="0.0" contentMode="scaleToFill" id="CxX-IY-rSH">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -139,4 +159,7 @@
             <point key="canvasLocation" x="324" y="297"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="light" width="64" height="64"/>
+    </resources>
 </document>
