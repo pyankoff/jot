@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:Jot Calculator.xcodeproj">
+      location = "self:JotCalculator.xcodeproj">
    </FileRef>
 </Workspace>

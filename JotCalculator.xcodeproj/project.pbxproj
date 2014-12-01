@@ -41,9 +41,9 @@
 		5585FA1F1A1F269500EA5CFB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5585FA1E1A1F269500EA5CFB /* UIKit.framework */; };
 		5585FB411A1F29AA00EA5CFB /* framework in Resources */ = {isa = PBXBuildFile; fileRef = 5585FB401A1F29AA00EA5CFB /* framework */; };
 		5585FB471A1F2E6800EA5CFB /* Torch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5585FB461A1F2E6800EA5CFB /* Torch.framework */; };
-		5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5585FB491A21125C00EA5CFB /* SymbolView.m */; };
 		558DDD141A24B8D600395FFA /* imgs in Resources */ = {isa = PBXBuildFile; fileRef = 558DDD131A24B8D600395FFA /* imgs */; };
 		55B88A8E1A25F9B300300CA1 /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */; };
+		55C86D0D1A2B339C00507449 /* SymbolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C86D0C1A2B339C00507449 /* SymbolView.swift */; };
 		55E4220E1A264F4800231981 /* AAPLPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55E4220D1A264F4800231981 /* AAPLPreviewView.m */; };
 /* End PBXBuildFile section */
 
@@ -71,7 +71,7 @@
 		552975971A21BACA00F0D12B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		552975991A247C1A00F0D12B /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		5529759A1A247C1A00F0D12B /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
-		554960C71A1269270019E491 /* Jot Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Jot Calculator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		554960C71A1269270019E491 /* JotCalculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JotCalculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		554960CB1A1269270019E491 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		554960CC1A1269270019E491 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		554960CE1A1269270019E491 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -79,7 +79,7 @@
 		554960D51A1269280019E491 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		554960D71A1269280019E491 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		554960DA1A1269280019E491 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		554960E01A1269280019E491 /* Jot CalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Jot CalculatorTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		554960E01A1269280019E491 /* JotCalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JotCalculatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		554960E51A1269280019E491 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		554960E61A1269280019E491 /* jotTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jotTests.m; sourceTree = "<group>"; };
 		5585F9FA1A1F252100EA5CFB /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -104,12 +104,11 @@
 		5585FA1E1A1F269500EA5CFB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5585FB401A1F29AA00EA5CFB /* framework */ = {isa = PBXFileReference; lastKnownFileType = folder; path = framework; sourceTree = "<group>"; };
 		5585FB461A1F2E6800EA5CFB /* Torch.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Torch.framework; sourceTree = "<group>"; };
-		5585FB481A21125C00EA5CFB /* SymbolView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SymbolView.h; sourceTree = "<group>"; };
-		5585FB491A21125C00EA5CFB /* SymbolView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SymbolView.m; sourceTree = "<group>"; };
 		558DDD131A24B8D600395FFA /* imgs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = imgs; sourceTree = "<group>"; };
 		55A4B50D1A26134E0043646E /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
 		55B88A8C1A25F9B200300CA1 /* JotCalculator-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotCalculator-Bridging-Header.h"; sourceTree = "<group>"; };
 		55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
+		55C86D0C1A2B339C00507449 /* SymbolView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SymbolView.swift; sourceTree = "<group>"; };
 		55E4220C1A264F4800231981 /* AAPLPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLPreviewView.h; sourceTree = "<group>"; };
 		55E4220D1A264F4800231981 /* AAPLPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLPreviewView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,8 +163,8 @@
 		554960C81A1269270019E491 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				554960C71A1269270019E491 /* Jot Calculator.app */,
-				554960E01A1269280019E491 /* Jot CalculatorTests.xctest */,
+				554960C71A1269270019E491 /* JotCalculator.app */,
+				554960E01A1269280019E491 /* JotCalculatorTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -174,19 +173,18 @@
 			isa = PBXGroup;
 			children = (
 				5585FB401A1F29AA00EA5CFB /* framework */,
+				5585FA001A1F258800EA5CFB /* RecognitionViewController.h */,
+				5585FA011A1F258800EA5CFB /* RecognitionViewController.mm */,
+				55C86D0C1A2B339C00507449 /* SymbolView.swift */,
 				552975991A247C1A00F0D12B /* MainViewController.h */,
 				5529759A1A247C1A00F0D12B /* MainViewController.m */,
 				55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */,
 				55E4220C1A264F4800231981 /* AAPLPreviewView.h */,
 				55E4220D1A264F4800231981 /* AAPLPreviewView.m */,
-				5585FA001A1F258800EA5CFB /* RecognitionViewController.h */,
-				5585FA011A1F258800EA5CFB /* RecognitionViewController.mm */,
 				5585FA031A1F25EC00EA5CFB /* ImageProcessor.h */,
 				5585FA041A1F25EC00EA5CFB /* ImageProcessor.mm */,
 				5585FA061A1F25F200EA5CFB /* Symbol.h */,
 				5585FA071A1F25F200EA5CFB /* Symbol.mm */,
-				5585FB481A21125C00EA5CFB /* SymbolView.h */,
-				5585FB491A21125C00EA5CFB /* SymbolView.m */,
 				5585FA0F1A1F263F00EA5CFB /* Torch.h */,
 				5585FA101A1F263F00EA5CFB /* Torch.m */,
 				5585FA091A1F25FF00EA5CFB /* main.lua */,
@@ -270,9 +268,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		554960C61A1269270019E491 /* Jot Calculator */ = {
+		554960C61A1269270019E491 /* JotCalculator */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 554960EA1A1269280019E491 /* Build configuration list for PBXNativeTarget "Jot Calculator" */;
+			buildConfigurationList = 554960EA1A1269280019E491 /* Build configuration list for PBXNativeTarget "JotCalculator" */;
 			buildPhases = (
 				554960C31A1269270019E491 /* Sources */,
 				554960C41A1269270019E491 /* Frameworks */,
@@ -282,14 +280,14 @@
 			);
 			dependencies = (
 			);
-			name = "Jot Calculator";
+			name = JotCalculator;
 			productName = jot;
-			productReference = 554960C71A1269270019E491 /* Jot Calculator.app */;
+			productReference = 554960C71A1269270019E491 /* JotCalculator.app */;
 			productType = "com.apple.product-type.application";
 		};
-		554960DF1A1269280019E491 /* Jot CalculatorTests */ = {
+		554960DF1A1269280019E491 /* JotCalculatorTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 554960ED1A1269280019E491 /* Build configuration list for PBXNativeTarget "Jot CalculatorTests" */;
+			buildConfigurationList = 554960ED1A1269280019E491 /* Build configuration list for PBXNativeTarget "JotCalculatorTests" */;
 			buildPhases = (
 				554960DC1A1269280019E491 /* Sources */,
 				554960DD1A1269280019E491 /* Frameworks */,
@@ -300,9 +298,9 @@
 			dependencies = (
 				554960E21A1269280019E491 /* PBXTargetDependency */,
 			);
-			name = "Jot CalculatorTests";
+			name = JotCalculatorTests;
 			productName = jotTests;
-			productReference = 554960E01A1269280019E491 /* Jot CalculatorTests.xctest */;
+			productReference = 554960E01A1269280019E491 /* JotCalculatorTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -324,7 +322,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 554960C21A1269270019E491 /* Build configuration list for PBXProject "Jot Calculator" */;
+			buildConfigurationList = 554960C21A1269270019E491 /* Build configuration list for PBXProject "JotCalculator" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -337,8 +335,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				554960C61A1269270019E491 /* Jot Calculator */,
-				554960DF1A1269280019E491 /* Jot CalculatorTests */,
+				554960C61A1269270019E491 /* JotCalculator */,
+				554960DF1A1269280019E491 /* JotCalculatorTests */,
 			);
 		};
 /* End PBXProject section */
@@ -374,12 +372,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				5585FA111A1F263F00EA5CFB /* Torch.m in Sources */,
-				5585FB4A1A21125C00EA5CFB /* SymbolView.m in Sources */,
 				554960D01A1269280019E491 /* AppDelegate.m in Sources */,
 				5529759B1A247C1A00F0D12B /* MainViewController.m in Sources */,
 				55B88A8E1A25F9B300300CA1 /* InfoViewController.swift in Sources */,
 				5585FA021A1F258800EA5CFB /* RecognitionViewController.mm in Sources */,
 				5585FA051A1F25EC00EA5CFB /* ImageProcessor.mm in Sources */,
+				55C86D0D1A2B339C00507449 /* SymbolView.swift in Sources */,
 				55E4220E1A264F4800231981 /* AAPLPreviewView.m in Sources */,
 				5585FA081A1F25F200EA5CFB /* Symbol.mm in Sources */,
 				554960CD1A1269270019E491 /* main.m in Sources */,
@@ -399,7 +397,7 @@
 /* Begin PBXTargetDependency section */
 		554960E21A1269280019E491 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 554960C61A1269270019E491 /* Jot Calculator */;
+			target = 554960C61A1269270019E491 /* JotCalculator */;
 			targetProxy = 554960E11A1269280019E491 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -507,6 +505,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEFINES_MODULE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -515,7 +514,7 @@
 				INFOPLIST_FILE = jot/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_NAME = "Jot Calculator";
+				PRODUCT_NAME = JotCalculator;
 				SWIFT_OBJC_BRIDGING_HEADER = "jot/JotCalculator-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -528,6 +527,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEFINES_MODULE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -536,7 +536,7 @@
 				INFOPLIST_FILE = jot/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				PRODUCT_NAME = "Jot Calculator";
+				PRODUCT_NAME = JotCalculator;
 				SWIFT_OBJC_BRIDGING_HEADER = "jot/JotCalculator-Bridging-Header.h";
 			};
 			name = Release;
@@ -555,7 +555,7 @@
 				);
 				INFOPLIST_FILE = jotTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "Jot CalculatorTests";
+				PRODUCT_NAME = JotCalculatorTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jot.app/jot";
 			};
 			name = Debug;
@@ -570,7 +570,7 @@
 				);
 				INFOPLIST_FILE = jotTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "Jot CalculatorTests";
+				PRODUCT_NAME = JotCalculatorTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/jot.app/jot";
 			};
 			name = Release;
@@ -578,7 +578,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		554960C21A1269270019E491 /* Build configuration list for PBXProject "Jot Calculator" */ = {
+		554960C21A1269270019E491 /* Build configuration list for PBXProject "JotCalculator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				554960E81A1269280019E491 /* Debug */,
@@ -587,7 +587,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		554960EA1A1269280019E491 /* Build configuration list for PBXNativeTarget "Jot Calculator" */ = {
+		554960EA1A1269280019E491 /* Build configuration list for PBXNativeTarget "JotCalculator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				554960EB1A1269280019E491 /* Debug */,
@@ -596,7 +596,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		554960ED1A1269280019E491 /* Build configuration list for PBXNativeTarget "Jot CalculatorTests" */ = {
+		554960ED1A1269280019E491 /* Build configuration list for PBXNativeTarget "JotCalculatorTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				554960EE1A1269280019E491 /* Debug */,

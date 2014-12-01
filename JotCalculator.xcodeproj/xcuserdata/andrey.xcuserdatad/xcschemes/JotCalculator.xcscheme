@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "554960C61A1269270019E491"
-               BuildableName = "Jot Calculator.app"
-               BlueprintName = "Jot Calculator"
-               ReferencedContainer = "container:Jot Calculator.xcodeproj">
+               BuildableName = "JotCalculator.app"
+               BlueprintName = "JotCalculator"
+               ReferencedContainer = "container:JotCalculator.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "554960C61A1269270019E491"
-            BuildableName = "Jot Calculator.app"
-            BlueprintName = "Jot Calculator"
-            ReferencedContainer = "container:Jot Calculator.xcodeproj">
+            BuildableName = "JotCalculator.app"
+            BlueprintName = "JotCalculator"
+            ReferencedContainer = "container:JotCalculator.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -52,9 +52,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "554960C61A1269270019E491"
-            BuildableName = "Jot Calculator.app"
-            BlueprintName = "Jot Calculator"
-            ReferencedContainer = "container:Jot Calculator.xcodeproj">
+            BuildableName = "JotCalculator.app"
+            BlueprintName = "JotCalculator"
+            ReferencedContainer = "container:JotCalculator.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -70,9 +70,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "554960C61A1269270019E491"
-            BuildableName = "Jot Calculator.app"
-            BlueprintName = "Jot Calculator"
-            ReferencedContainer = "container:Jot Calculator.xcodeproj">
+            BuildableName = "JotCalculator.app"
+            BlueprintName = "JotCalculator"
+            ReferencedContainer = "container:JotCalculator.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

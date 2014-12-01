@@ -12,9 +12,9 @@
 #import "opencv2/highgui/ios.h"
 #import "Symbol.h"
 #import <mach/mach_time.h>
-#import "SymbolView.h"
 #import "Parse/Parse.h"
 #import "AAPLPreviewView.h"
+#import "JotCalculator-Swift.h"
 
 @interface RecognitionViewController ()  <UIApplicationDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
@@ -41,7 +41,7 @@
 @property (strong, nonatomic) PFObject *photo;
 
 // Editing
-@property (strong, nonatomic) SymbolView *activeSymbol;
+//@property (strong, nonatomic) SymbolView *activeSymbol;
 @property (nonatomic) int initialSymbolNumber;
 
 // Camera
@@ -180,6 +180,27 @@
     self.recognitionOn = NO;
     self.flashOn = NO;
     [self toggleRecognition];
+    
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserverForName:@"symbolChange"
+                        object:nil
+                         queue:nil
+                    usingBlock:^(NSNotification *notification)
+    {
+        if (self.recognitionOn) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [self stopRecognition];
+            });
+        }
+    }];
+    [center addObserverForName:@"symbolValue"
+                        object:nil
+                         queue:nil
+                    usingBlock:^(NSNotification *notification)
+     {
+         NSLog(@"%@", notification.object);
+         [self symbolChange:notification];
+     }];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -467,13 +488,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         }];
     }
 }
-
+/*
 - (void)updateAdjustedSymbol {
     Symbol *symbol = self.symbols[self.activeSymbol.symbolIndex];
     [symbol.parseObject setObject:[NSString stringWithFormat:@"%@", symbol.symbol] forKey:@"adjusted"];
     NSLog(@"%@", symbol.parseObject[@"adjusted"]);
 }
-
+*/
 - (void)sendSymbolsToParse {
     for (Symbol *symbol in self.symbols) {
         [symbol.parseObject saveEventually];
@@ -482,38 +503,45 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 #pragma mark - recognition
 
-- (IBAction)toggleRecognition {
+- (void)toggleRecognition {
     if (self.recognitionOn) {
-        NSLog(@"recognition stopped");
-        self.recognitionOn = NO;
-        
-        [self.session stopRunning];
-        
-        self.imageView.contentMode = UIViewContentModeScaleAspectFit;
-        [self.imageView setImage:self.image];
-        
-        [self saveToParse];
+        [self stopRecognition];
     } else {
-        [self sendSymbolsToParse];
-        self.symbols = nil;
-        if (self.onSimulator) {
-            int i = arc4random() % 8;
-            self.image = [UIImage imageNamed:[NSString stringWithFormat:@"imgs/img%d.jpg", i]];
-            [self.imageView setImage:self.image];
-        } else {
-            [self.imageView setImage:nil];
-            self.image = nil;
-        }
-        [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
-        
-        NSLog(@"recognition started");
-        
-        self.recognitionOn = YES;
-        [self startRecognition];
-        
-        [self.session startRunning]; // blinks, how to fix?
+        [self beginRecognition];
     }
-    [self animateStatus];
+}
+
+- (void)stopRecognition {
+    NSLog(@"recognition stopped");
+    self.recognitionOn = NO;
+    
+    [self.session stopRunning];
+    
+    self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    [self.imageView setImage:self.image];
+    
+    [self saveToParse];
+}
+
+- (IBAction)beginRecognition {
+    [self sendSymbolsToParse];
+    self.symbols = nil;
+    if (self.onSimulator) {
+        int i = arc4random() % 8;
+        self.image = [UIImage imageNamed:[NSString stringWithFormat:@"imgs/img%d.jpg", i]];
+        [self.imageView setImage:self.image];
+    } else {
+        [self.imageView setImage:nil];
+        self.image = nil;
+    }
+    [self clearScreen];
+    
+    NSLog(@"recognition started");
+    
+    self.recognitionOn = YES;
+    [self startRecognition];
+    
+    [self.session startRunning]; // blinks, how to fix?
 }
 
 - (void)startRecognition
@@ -775,9 +803,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 #pragma mark - display
 
+- (void)clearScreen {
+    for (UIView *view in self.imageView.subviews) {
+        if ([view isKindOfClass:[SymbolView class]]) {
+            [view removeObserver:self forKeyPath:@"targetContentOffset"];
+        }
+    }
+    [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+}
+
 - (void)drawExpression {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+        [self clearScreen];
         for (int i = 0; i < [self.symbols count]; i++ ) {
             Symbol *symbol = self.symbols[i];
             [self drawSymbol:symbol];
@@ -813,63 +850,27 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     //NSLog(@"image size: %f %f", self.image.size.width, self.image.size.height);
     //NSLog(@"imageView size: %f %f", self.imageView.bounds.size.width, self.imageView.bounds.size.height);
     int y = [self focusRectY] + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
-    NSLog(@"x: %d, y: %d, padding: %d", x, y, [self padding]);
-    SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.fontSize*0.55, self.fontSize*0.8)];
+    //NSLog(@"x: %d, y: %d, padding: %d", x, y, [self padding]);
+    SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.fontSize*0.55, self.fontSize*0.8) symbol:symbol.symbol];
     
-    digitLabel.fontSize = self.fontSize;
+    //digitLabel.fontSize = self.fontSize;
     digitLabel.type = symbol.type;
-    digitLabel.symbol = symbol.symbol;
-    digitLabel.userInteractionEnabled = YES;
-    digitLabel.symbolIndex = (int)[self.symbols indexOfObjectIdenticalTo:symbol];
+    digitLabel.symbolIndex = [self.symbols indexOfObjectIdenticalTo:symbol];
     [self.imageView addSubview:digitLabel];
-    //[self.imageView setImage:self.image];
-    
+    [digitLabel addObserver:self forKeyPath:@"targetContentOffset" options:0 context:nil];
 }
 
-- (IBAction)adjust:(UIPanGestureRecognizer *)sender {
-    if (sender.state == UIGestureRecognizerStateBegan) {
-        CGPoint point = [sender locationInView:self.imageView];
-        UIView *tappedView = [self.imageView hitTest:point withEvent:nil];
-        
-        if ([tappedView isKindOfClass:[SymbolView class]]) {
-            self.activeSymbol = (SymbolView *)tappedView;
-            self.initialSymbolNumber = self.activeSymbol.symbolNumber;
-            [self adjustSymbol:[sender translationInView:self.imageView].y];
-        }
-    } else if (sender.state == UIGestureRecognizerStateChanged) {
-        if (self.activeSymbol != nil) {
-            [self adjustSymbol:[sender translationInView:self.imageView].y];
-        }
-    } else if (sender.state == UIGestureRecognizerStateEnded) {
-        [self updateAdjustedSymbol];
-        self.activeSymbol = nil;
-        self.initialSymbolNumber = NULL;
-    }
-}
-
-- (void)adjustSymbol:(float)translation {
-    int limit;
-    
-    if ([self.activeSymbol.type isEqual:@"sign"]) {
-        limit = 3;
-    } else if ([self.activeSymbol.type isEqual:@"digit"]) {
-        limit = 9;
-    }
-    
-    int number = (self.initialSymbolNumber - int(ceil(translation/30)))%(limit+1);
-    if (number < 0) {
-        number += limit+1;
-    }
-    
-    self.activeSymbol.symbolNumber = number;
-    
-    // Update answer
-    Symbol *symbol = self.symbols[self.activeSymbol.symbolIndex];
-    symbol.symbol = self.activeSymbol.text;
-    NSLog(@"%d, %@", self.activeSymbol.symbolIndex, symbol.symbol);
-    dispatch_async(self.queue, ^{
-        [self makeExpression];
-        [self drawAnswer];
+- (void)symbolChange:(NSNotification *)notification {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSLog(@"asdf");
+        NSDictionary *change = (NSDictionary *)notification.object;
+        int index = ((NSNumber *)[change objectForKey:@"index"]).integerValue;
+        Symbol *symbol = self.symbols[index];
+        symbol.symbol = (NSString *)[change objectForKey:@"symbol"];
+        dispatch_async(self.queue, ^{
+            [self makeExpression];
+            [self drawAnswer];
+        });
     });
 }
 
