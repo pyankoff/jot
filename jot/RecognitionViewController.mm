@@ -260,6 +260,7 @@
                 // Note: As an exception to the above rule, it is not necessary to serialize video orientation changes on the AVCaptureVideoPreviewLayer’s connection with other session manipulation.
                 
                 [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+                ((AVCaptureVideoPreviewLayer *)[[self previewView] layer]).videoGravity = AVLayerVideoGravityResizeAspectFill;
             });
         }
         
@@ -415,36 +416,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     return focusRect;
 }
 
-- (void)animateStatus {
-    if (!self.recognitionOn) {
-        self.statusLabel.text = @"Tap for new calculation";
-        [UIView animateWithDuration:0.5
-                              delay:0.0
-                            options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
-                         animations:^{
-                             self.statusLabel.alpha = 1.0f;
-                         }
-                         completion:^(BOOL finished){
-                             // Do nothing
-                         }];
-    } else {
-        self.statusLabel.text = @"Processing...";
-        self.statusLabel.alpha = 1.0f;
-        [UIView animateWithDuration:1.0
-                              delay:0.0
-                            options:UIViewAnimationOptionCurveEaseInOut |
-         UIViewAnimationOptionRepeat |
-         UIViewAnimationOptionAutoreverse |
-         UIViewAnimationOptionAllowUserInteraction
-                         animations:^{
-                             self.statusLabel.alpha = 0.0f;
-                         }
-                         completion:^(BOOL finished){
-                             // Do nothing
-                         }];
-    }
-}
-
 #pragma mark - Parse
 
 - (void)saveToParse {
@@ -488,13 +459,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         }];
     }
 }
-/*
-- (void)updateAdjustedSymbol {
-    Symbol *symbol = self.symbols[self.activeSymbol.symbolIndex];
+
+- (void)updateAdjustedSymbol:(int)i {
+    Symbol *symbol = self.symbols[i];
     [symbol.parseObject setObject:[NSString stringWithFormat:@"%@", symbol.symbol] forKey:@"adjusted"];
     NSLog(@"%@", symbol.parseObject[@"adjusted"]);
 }
-*/
+
 - (void)sendSymbolsToParse {
     for (Symbol *symbol in self.symbols) {
         [symbol.parseObject saveEventually];
@@ -515,17 +486,21 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     NSLog(@"recognition stopped");
     self.recognitionOn = NO;
     
-    [self.session stopRunning];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.imageView.contentMode = UIViewContentModeScaleAspectFill;
+        [self.imageView setImage:self.image];
+    });
     
-    self.imageView.contentMode = UIViewContentModeScaleAspectFit;
-    [self.imageView setImage:self.image];
+    [self.session stopRunning];
     
     [self saveToParse];
 }
 
 - (IBAction)beginRecognition {
-    [self sendSymbolsToParse];
-    self.symbols = nil;
+    dispatch_async(self.queue, ^{
+        [self sendSymbolsToParse];
+        self.symbols = nil;
+    });
     if (self.onSimulator) {
         int i = arc4random() % 8;
         self.image = [UIImage imageNamed:[NSString stringWithFormat:@"imgs/img%d.jpg", i]];
@@ -827,19 +802,26 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         if ([self.answer length] > 0) {
             self.answerLabel = [[UILabel alloc] initWithFrame:CGRectMake(FOCUS_RECT_X, self.view.bounds.size.height-[self focusRectYBottom]+10, self.view.bounds.size.width-2*FOCUS_RECT_X, [self focusRectYBottom]-20)];
             NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+
             paragraphStyle.alignment = NSTextAlignmentCenter;
-            NSAttributedString *labelValue = [[NSAttributedString alloc] initWithString:self.answer
-                                                                             attributes:@{NSForegroundColorAttributeName: [UIColor colorWithRed:1 green:1 blue:1 alpha:0.7],
+            
+            CGFloat size = MIN([self focusRectYBottom]-25, 400/([self.answer length]+3));
+            
+            NSMutableAttributedString *labelValue = [[NSMutableAttributedString alloc] initWithString:self.answer
+                                                                             attributes:@{NSForegroundColorAttributeName: [UIColor colorWithRed:1 green:1 blue:1 alpha:1],
                                                                                           NSStrokeWidthAttributeName: @(0.0),
                                                                                           NSStrokeColorAttributeName:[UIColor redColor],
-                                                                                          NSFontAttributeName: [UIFont boldSystemFontOfSize:MIN([self focusRectYBottom]-25, 400/[self.answer length])],
+                                                                                          NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue-Light" size:size],
                                                                                           NSParagraphStyleAttributeName:paragraphStyle }];
             
             self.answerLabel.attributedText = labelValue;
             [self.answerLabel setNeedsDisplay];
             self.answerLabel.layer.cornerRadius = 6;
             self.answerLabel.layer.backgroundColor = [UIColor colorWithRed:247.0/255 green:82.0/255 blue:28.0/255 alpha:1].CGColor;
-            //answerLabel.backgroundColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:0.6];
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleRecognition)];
+            [self.answerLabel addGestureRecognizer:tap];
+            self.answerLabel.userInteractionEnabled = YES;
+            
             [self.imageView addSubview:self.answerLabel];
         }
     });
@@ -864,9 +846,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSLog(@"asdf");
         NSDictionary *change = (NSDictionary *)notification.object;
-        int index = ((NSNumber *)[change objectForKey:@"index"]).integerValue;
+        int index = (int)((NSNumber *)[change objectForKey:@"index"]).integerValue;
         Symbol *symbol = self.symbols[index];
         symbol.symbol = (NSString *)[change objectForKey:@"symbol"];
+        [self updateAdjustedSymbol:index];
         dispatch_async(self.queue, ^{
             [self makeExpression];
             [self drawAnswer];

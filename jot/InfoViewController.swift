@@ -115,7 +115,11 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
         return UIStatusBarStyle.LightContent
     }
     
+    override func shouldAutorotate() -> Bool {
+        return false
+    }
     
-    
-    
+    override func supportedInterfaceOrientations() -> Int {
+        return UIInterfaceOrientation.Portrait.rawValue
+    }
 }
