@@ -41,10 +41,10 @@ class SymbolView: UIScrollView, UIScrollViewDelegate {
         super.init(frame: frame)
         
         if let n = (symbol as String).toInt() {
-            println("number")
+            //println("number")
             count = 10
         } else {
-            println("sign")
+            //println("sign")
             count = 4
         }
         

@@ -163,9 +163,7 @@
     
     if ([[AVCaptureDevice devices] count] > 0) {
         self.onSimulator = NO;
-        
         [self createSession];
-        
     } else {
         NSLog(@"no camera");
         self.onSimulator = YES;
@@ -294,7 +292,7 @@
     [[self.imageView layer] addSublayer:self.focusRect];
     
     if (self.recognitionOn) {
-        [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+        [self clearScreen];
     } else {
         [self drawExpression];
         [self drawAnswer];
@@ -430,6 +428,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             PFObject *photo = [PFObject objectWithClassName:@"Photo"];
             [photo setObject:imageFile forKey:@"imageFile"];
             [photo setObject:[PFUser currentUser] forKey:@"user"];
+            if ([self.answer isEqual:@"(null)"]) {
+                photo[@"error"] = @"expression error";
+            }
             [photo saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
                 if (!error) {
                     for (Symbol *symbol in self.symbols) {
@@ -508,6 +509,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     } else {
         [self.imageView setImage:nil];
         self.image = nil;
+        [self.session startRunning]; // blinks, how to fix?
     }
     [self clearScreen];
     
@@ -515,8 +517,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     self.recognitionOn = YES;
     [self startRecognition];
-    
-    [self.session startRunning]; // blinks, how to fix?
 }
 
 - (void)startRecognition
@@ -536,9 +536,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)recognize {
     UIImage *croppedImage = [self cropImage:self.image];
-    
-    //NSMutableArray *digits;
-    //NSMutableArray *signs = [[NSMutableArray alloc] init];
     
     if (!CGSizeEqualToSize(croppedImage.size, CGSizeZero)) {
         NSArray *symbols = [self.imageProcessor findDigits:croppedImage];
@@ -696,16 +693,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     NSMutableArray *signs = [[NSMutableArray alloc] init];
     NSMutableArray *numbers = [[NSMutableArray alloc] init];
     
-    //NSLog(@"signIndexes size: %lu", (unsigned long)[self.signsIndexes count]);
-    //NSLog(@"numbersIndexes size: %lu", (unsigned long)[self.numbersIndexes count]);
-    //NSLog(@"number of symbols: %lu", (unsigned long)[self.symbols count]);
     for (NSNumber *index in self.signsIndexes) {
         int i = (int)[index integerValue];
         Symbol *sign = self.symbols[i];
-        //NSLog(@"sign x: %lu", (unsigned long)sign.x);
-        //NSLog(@"sign at index %d: %@", i, sign.symbol);
         [signs addObject:sign.symbol];
-        //NSLog(@"sign index: %d", i);
     }
     
     for (NSArray *row in self.numbersIndexes) {
@@ -741,8 +732,17 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     NSLog(@"expression: %@", expression);
     
-    NSExpression *expressionToProcess = [NSExpression expressionWithFormat:expression];
-    NSNumber *answer = [expressionToProcess expressionValueWithObject:nil context:nil];
+    NSNumber *answer = nil;
+    
+    @try {
+        NSExpression *expressionToProcess = [NSExpression expressionWithFormat:expression];
+        answer = [expressionToProcess expressionValueWithObject:nil context:nil];
+    }
+    @catch (NSException *e) {
+        [self saveToParse];
+        NSLog(@"Exception: %@", e);
+    }
+    
     
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
