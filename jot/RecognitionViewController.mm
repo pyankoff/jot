@@ -38,7 +38,7 @@
 @property (strong, nonatomic) NSString *answer;
 
 // Parse
-@property (strong, nonatomic) PFObject *photo;
+@property (strong, nonatomic) NSMutableArray *parseSymbols;
 
 // Editing
 //@property (strong, nonatomic) SymbolView *activeSymbol;
@@ -440,11 +440,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             }];
         }
     }];
-    [self saveSymbolsFromPhoto:self.photo];
+    [self saveSymbolsFromPhoto];
 }
 
-- (void)saveSymbolsFromPhoto:(PFObject *)photo {
+- (void)saveSymbolsFromPhoto {
     for (Symbol *symbol in self.symbols) {
+        
         symbol.parseObject = [PFObject objectWithClassName:@"Symbol"];
         symbol.parseObject[@"recognized"] = [NSString stringWithFormat:@"%@", symbol.symbol];
         symbol.parseObject[@"adjusted"] = @"";
@@ -469,7 +470,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)sendSymbolsToParse {
     for (Symbol *symbol in self.symbols) {
-        [symbol.parseObject saveEventually];
+        if ([symbol.parseObject[@"imgFile"] isKindOfClass:[PFFile class]]) {
+            [symbol.parseObject saveEventually];
+        }
     }
 }
 
@@ -498,10 +501,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (IBAction)beginRecognition {
-    dispatch_async(self.queue, ^{
-        [self sendSymbolsToParse];
-        self.symbols = nil;
-    });
+    [self sendSymbolsToParse];
     if (self.onSimulator) {
         int i = arc4random() % 8;
         self.image = [UIImage imageNamed:[NSString stringWithFormat:@"imgs/img%d.jpg", i]];
