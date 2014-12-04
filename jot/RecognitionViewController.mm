@@ -71,14 +71,22 @@
 #define FOCUS_RECT_Y 70
 #define FOCUS_RECT_Y_BOTTOM 80
 
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+
+- (BOOL)shouldAutorotate {
+    return YES;
+}
+
 - (int)padding { return (self.image.size.height - self.image.size.width * self.view.bounds.size.height / self.view.bounds.size.width) / 2; }
 
 - (int)focusRectY {
     UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
     if ( deviceOrientation == UIDeviceOrientationLandscapeLeft || deviceOrientation == UIDeviceOrientationLandscapeRight)  {
-        return FOCUS_RECT_Y/2;
+        return 0.1*self.view.bounds.size.height;
     } else {
-        return FOCUS_RECT_Y;
+        return 0.15 * MAX(self.view.bounds.size.height, self.view.bounds.size.width);
     }
 }
 
@@ -172,9 +180,6 @@
     self.queue = dispatch_queue_create("recognitionQueue", NULL);
     [self.torch initialize];
     
-    self.focusRect = [self drawFocusRect];
-    [[self.imageView layer] addSublayer:self.focusRect];
-    
     self.recognitionOn = NO;
     self.flashOn = NO;
     [self toggleRecognition];
@@ -204,6 +209,12 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    if (self.focusRect) {
+        [self.focusRect removeFromSuperlayer];
+    }
+    self.focusRect = [self drawFocusRect:0];
+    [[self.imageView layer] addSublayer:self.focusRect];
     
     if (!self.onSimulator) {
         dispatch_async([self sessionQueue], ^{
@@ -294,7 +305,7 @@
     [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)toInterfaceOrientation];
     
     [self.focusRect removeFromSuperlayer];
-    self.focusRect = [self drawFocusRect];
+    self.focusRect = [self drawFocusRect:1];
     [[self.imageView layer] addSublayer:self.focusRect];
     
     if (self.recognitionOn) {
@@ -392,11 +403,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 #pragma mark - support UI
 
-- (CAShapeLayer *)drawFocusRect {
+- (CAShapeLayer *)drawFocusRect:(int)type {
     CAShapeLayer *focusRect = [CAShapeLayer layer];
     
     CGFloat width, height;
-    if (!self.focusRect) {
+    if (type == 0) {
         width = self.view.bounds.size.width;
         height = self.view.bounds.size.height;
     } else {

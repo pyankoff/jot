@@ -22,7 +22,7 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
         pageImages = [UIImage(named: "imgs/iphone.png")!,
             UIImage(named: "imgs/iphone_hand.png")!]
         
-        scrollView.frame.size = self.view.frame.size
+        scrollView.frame.size = CGSize(width: min(self.view.bounds.width, self.view.bounds.height), height: max(self.view.bounds.width, self.view.bounds.height))
         
         scrollView.contentSize = CGSize(width: scrollView.frame.size.width,
             height: scrollView.frame.size.height * CGFloat(pageImages.count+1))
@@ -54,7 +54,33 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
         caption.text = "Please contact us:"
         caption.font = UIFont(name: "HelveticaNeue-Light", size: 28)
         caption.numberOfLines = 1
+        
+        let iconHeight = 0.2 * height()
+        let x = (width() - iconHeight)/2
+        
+        let icons = ["facebook", "twitter", "mail"]
+        
+        for i in 0...2 {
+            let y = 0.2 * height() +  height() * CGFloat(pageImages.count) + 0.20 * height() * CGFloat(i)
+            let icon = UIButton(frame: CGRect(x: x, y: y, width: iconHeight, height: iconHeight))
+            icon.setImage(UIImage(named: icons[i]), forState: .Normal)
+            icon.addTarget(self, action: "goTo:", forControlEvents: .TouchUpInside)
+            icon.tag = i
+            scrollView.addSubview(icon)
+        }
+        
         scrollView.addSubview(caption)
+    }
+    
+    func goTo(sender: UIButton) {
+        if sender.tag == 0 {
+            UIApplication.sharedApplication().openURL(NSURL(string: "http://facebook.com/jotcalculator")!)
+        } else if sender.tag == 1 {
+            UIApplication.sharedApplication().openURL(NSURL(string: "http://twitter.com/jotcalculator")!)
+        } else if sender.tag == 2 {
+            println("huy")
+            UIApplication.sharedApplication().openURL(NSURL(string: "mailto:jotcalculator@gmail.com")!)
+        }
     }
     
     func addCaption(i: Int) {
@@ -115,6 +141,6 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
     }
     
     override func supportedInterfaceOrientations() -> Int {
-        return UIInterfaceOrientation.Portrait.rawValue
+        return Int(UIInterfaceOrientationMask.Portrait.rawValue)
     }
 }

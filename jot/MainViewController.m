@@ -37,5 +37,12 @@
     // Pass the selected object to the new view controller.
 }
 */
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+
+- (BOOL)shouldAutorotate {
+    return YES;
+}
 
 @end
