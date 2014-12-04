@@ -237,6 +237,12 @@
         NSError *error = nil;
         
         AVCaptureDevice *videoDevice = [RecognitionViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
+        if ([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked]) {
+            [videoDevice lockForConfiguration:nil];
+            [videoDevice setFocusModeLockedWithLensPosition:0.3f completionHandler:nil];
+            [videoDevice unlockForConfiguration];
+        }
+        
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
         
         if (error)
@@ -428,9 +434,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             PFObject *photo = [PFObject objectWithClassName:@"Photo"];
             [photo setObject:imageFile forKey:@"imageFile"];
             [photo setObject:[PFUser currentUser] forKey:@"user"];
-            if ([self.answer isEqual:@"(null)"]) {
-                photo[@"error"] = @"expression error";
-            }
             [photo saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
                 if (!error) {
                     for (Symbol *symbol in self.symbols) {
@@ -503,7 +506,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (IBAction)beginRecognition {
     [self sendSymbolsToParse];
     if (self.onSimulator) {
-        int i = arc4random() % 8;
+        int i = arc4random() % 5;
         self.image = [UIImage imageNamed:[NSString stringWithFormat:@"imgs/img%d.jpg", i]];
         [self.imageView setImage:self.image];
     } else {
@@ -732,17 +735,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     NSLog(@"expression: %@", expression);
     
-    NSNumber *answer = nil;
-    
-    @try {
-        NSExpression *expressionToProcess = [NSExpression expressionWithFormat:expression];
-        answer = [expressionToProcess expressionValueWithObject:nil context:nil];
-    }
-    @catch (NSException *e) {
-        [self saveToParse];
-        NSLog(@"Exception: %@", e);
-    }
-    
+    NSExpression *expressionToProcess = [NSExpression expressionWithFormat:expression];
+    NSNumber *answer = [expressionToProcess expressionValueWithObject:nil context:nil];
     
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     [formatter setNumberStyle:NSNumberFormatterDecimalStyle];

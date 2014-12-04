@@ -8,10 +8,16 @@
 @implementation Torch
 
 static NSString *appPath;
+static NSString *phoneType;
 
 /* Helper method for Lua script to be able to access app resources */
 static int lua_getAppPath(lua_State *L) {
     lua_pushstring(L, [appPath UTF8String]);
+    return 1; // number of results returnd to Lua
+}
+
+static int lua_getPhoneType(lua_State *L) {
+    lua_pushstring(L, [phoneType UTF8String]);
     return 1; // number of results returnd to Lua
 }
 
@@ -29,10 +35,6 @@ static int lua_getAppPath(lua_State *L) {
 - (void)initialize
 {
     
-    mach_timebase_info_data_t timeBaseInfo;
-    mach_timebase_info(&timeBaseInfo);
-    uint64_t startTime = mach_absolute_time();
-
     appPath = [[NSBundle mainBundle] resourcePath];
     
     // initialize Lua stack
@@ -60,6 +62,14 @@ static int lua_getAppPath(lua_State *L) {
     // Make helpers available to Lua
     lua_pushcfunction(L, lua_getAppPath);
     lua_setglobal(L, "getAppPath");
+    
+    if (sizeof(int*) == 4) {
+        phoneType = @"32";
+    } else if (sizeof(int*) == 8) {
+        phoneType = @"64";
+    }
+    lua_pushcfunction(L, lua_getPhoneType);
+    lua_setglobal(L, "getPhoneType");
 
     // Lua code that contains the neural network classifier
     [self require:@"/main.lua"];
@@ -68,11 +78,6 @@ static int lua_getAppPath(lua_State *L) {
     if (lua_pcall(L, 0, 0, 0) != 0)
         NSLog(@"error running function `f': %s", lua_tostring(L, -1));
     */
-    
-    
-    uint64_t endTime = mach_absolute_time();
-    double elapsedTime = (endTime - startTime) * timeBaseInfo.numer / timeBaseInfo.denom / 1e9;
-    NSLog(@"elapsed time: %f", elapsedTime);
     
     // done
     return;

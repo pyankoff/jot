@@ -13,18 +13,14 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet var scrollView: UIScrollView!
     
     var pageImages: [UIImage] = []
-    var pageLabels: [NSString] = ["Just point your camera at expression",
-            "Get instant answer",
-            "Swipe up-down to adjust digits",
-            "Jot learns from your writing"]
+    var pageLabels: [NSString] = ["Just point your camera at expression and get answer instantly.",
+            "Change symbols or tap answer for new calculation."]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        pageImages = [UIImage(named: "imgs/iphone0.png")!,
-            UIImage(named: "imgs/iphone0.png")!,
-            UIImage(named: "imgs/iphone0.png")!,
-            UIImage(named: "imgs/iphone0.png")!]
+        pageImages = [UIImage(named: "imgs/iphone.png")!,
+            UIImage(named: "imgs/iphone_hand.png")!]
         
         scrollView.frame.size = self.view.frame.size
         
@@ -51,18 +47,18 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
     }
     
     func addContacts() {
-        let totalHeight = height() * CGFloat(pageImages.count) + 50
-        let caption = UILabel(frame: CGRect(x: 20, y: totalHeight, width: width() - 40, height: 120))
+        let totalHeight = height() * CGFloat(pageImages.count) + 0.1*height()
+        let caption = UILabel(frame: CGRect(x: 20, y: totalHeight, width: width() - 40, height: 40))
         caption.textColor = UIColor.whiteColor()
         caption.textAlignment = NSTextAlignment.Center
         caption.text = "Please contact us:"
         caption.font = UIFont(name: "HelveticaNeue-Light", size: 28)
-        caption.numberOfLines = 3
+        caption.numberOfLines = 1
         scrollView.addSubview(caption)
     }
     
     func addCaption(i: Int) {
-        let y = 30 + scrollView.frame.size.height * CGFloat(i)
+        let y = 0.1*height() + height() * CGFloat(i)
         let caption = UILabel(frame: CGRect(x: 20, y: y, width: width() - 40, height: 120))
         caption.textColor = UIColor.whiteColor()
         caption.textAlignment = NSTextAlignment.Center
@@ -76,15 +72,14 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
         let imageWidth = pageImages[i].size.width
         let imageHeight = pageImages[i].size.height
         
-        let photoWidth = CGFloat(250.0)
-        let photoHeight = imageHeight * photoWidth / imageWidth
-        let photoX = CGFloat((width()-photoWidth) / CGFloat(2))
+        let photoHeight = 0.65 * height()
+        let photoWidth = imageWidth * photoHeight / imageHeight
         
-        let photoY = (height() - photoHeight - 20) +  height() * CGFloat(i)
-        var frame = CGRect(x: photoX, y: photoY, width: photoWidth, height: photoHeight)
+        let photoY = (0.3 * height()) +  height() * CGFloat(i)
+        var frame = CGRect(x: (width()-photoWidth)/2, y: photoY, width: photoWidth, height: photoHeight)
         
         let image = UIImageView(image: pageImages[i])
-        image.contentMode = .ScaleAspectFit
+        image.contentMode = .ScaleAspectFill
         image.frame = frame
         scrollView.addSubview(image)
     }

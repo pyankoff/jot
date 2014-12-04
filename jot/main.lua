@@ -1,9 +1,20 @@
-digitsNetworkURI = getAppPath() .. "/mnist.net"
-digitsNetwork = torch.load(digitsNetworkURI)
+phoneType = getPhoneType()
 
-signsNetworkURI = getAppPath() .. "/signs.net"
+if phoneType == "32" then
+    digitsNetworkURI = getAppPath() .. "/nets/digits_32.net"
+    signsNetworkURI = getAppPath() .. "/nets/signs_32.net"
+elseif phoneType == "64" then
+    digitsNetworkURI = getAppPath() .. "/nets/digits_64.net"
+    signsNetworkURI = getAppPath() .. "/nets/signs_64.net"
+end
+
+
+digitsNetwork = torch.load(digitsNetworkURI)
+--torch.save(getAppPath() .. "/digits_6.net", digitsNetwork)
+
+
 signsNetwork = torch.load(signsNetworkURI)
---torch.save(signsNetworkURI, signsNetwork)
+--torch.save(getAppPath() .. "/signs_6.net", signsNetwork)
 
 
 function classify(binaryImage, size)
