@@ -22,7 +22,6 @@
 @property (strong, nonatomic) ImageProcessor *imageProcessor;
 @property (strong, nonatomic) Torch *torch;
 @property (nonatomic) BOOL recognitionOn;
-@property (strong, nonatomic) IBOutlet UITapGestureRecognizer *tapRecognizer;
 @property (strong, nonatomic) UILabel *statusLabel;
 @property (strong, nonatomic) UILabel *answerLabel;
 @property (nonatomic) int fontSize;
@@ -41,7 +40,6 @@
 @property (strong, nonatomic) NSMutableArray *parseSymbols;
 
 // Editing
-//@property (strong, nonatomic) SymbolView *activeSymbol;
 @property (nonatomic) int initialSymbolNumber;
 
 // Camera
@@ -55,6 +53,9 @@
 
 @property (strong, nonatomic) dispatch_queue_t queue;
 @property (strong, nonatomic) CAShapeLayer *focusRect;
+
+@property (nonatomic) int frameAdjustmentX;
+@property (nonatomic) int frameAdjustmentY;
 
 // Simulator
 @property (nonatomic) BOOL onSimulator;
@@ -402,6 +403,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 
 #pragma mark - support UI
+
+- (IBAction)changeRect:(UIPanGestureRecognizer *)sender {
+    
+}
+
+
 
 - (CAShapeLayer *)drawFocusRect:(int)type {
     CAShapeLayer *focusRect = [CAShapeLayer layer];
