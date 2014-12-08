@@ -16,14 +16,13 @@
 #import "AAPLPreviewView.h"
 #import "JotCalculator-Swift.h"
 
-@interface RecognitionViewController ()  <UIApplicationDelegate>
+@interface RecognitionViewController ()  <UIApplicationDelegate, UIGestureRecognizerDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (strong, nonatomic) UIImage *image;
 @property (strong, nonatomic) ImageProcessor *imageProcessor;
 @property (strong, nonatomic) Torch *torch;
 @property (nonatomic) BOOL recognitionOn;
-@property (strong, nonatomic) UILabel *statusLabel;
-@property (strong, nonatomic) UILabel *answerLabel;
+@property (weak, nonatomic) IBOutlet UIButton *equals;
 @property (nonatomic) int fontSize;
 
 // Flash
@@ -54,6 +53,9 @@
 @property (strong, nonatomic) dispatch_queue_t queue;
 @property (strong, nonatomic) CAShapeLayer *focusRect;
 
+//focusRect
+@property (nonatomic) int focusRectX;
+@property (nonatomic) int focusRectY;
 @property (nonatomic) int frameAdjustmentX;
 @property (nonatomic) int frameAdjustmentY;
 
@@ -68,9 +70,17 @@
 
 #pragma mark - initializations
 
-#define FOCUS_RECT_X 40
-#define FOCUS_RECT_Y 70
-#define FOCUS_RECT_Y_BOTTOM 80
+- (int)topEdge {
+    return self.flashButton.frame.origin.y + self.flashButton.frame.size.height + 10;
+}
+
+- (int)maxHeight {
+    return self.equals.frame.origin.y - [self topEdge] - 30;
+}
+
+- (int)leftEdge {
+    return self.equals.frame.origin.x;
+}
 
 - (NSUInteger)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAllButUpsideDown;
@@ -81,24 +91,6 @@
 }
 
 - (int)padding { return (self.image.size.height - self.image.size.width * self.view.bounds.size.height / self.view.bounds.size.width) / 2; }
-
-- (int)focusRectY {
-    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
-    if ( deviceOrientation == UIDeviceOrientationLandscapeLeft || deviceOrientation == UIDeviceOrientationLandscapeRight)  {
-        return 0.1*self.view.bounds.size.height;
-    } else {
-        return 0.15 * MAX(self.view.bounds.size.height, self.view.bounds.size.width);
-    }
-}
-
-- (int)focusRectYBottom {
-    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
-    if ( deviceOrientation == UIDeviceOrientationLandscapeLeft || deviceOrientation == UIDeviceOrientationLandscapeRight)  {
-        return FOCUS_RECT_Y_BOTTOM*0.7;
-    } else {
-        return FOCUS_RECT_Y_BOTTOM;
-    }
-}
 
 /*
 - (UIImageView *)imageView {
@@ -141,6 +133,7 @@
     return _numbersIndexes;
 }
 
+@synthesize answer = _answer;
 - (NSString *)answer {
     if (!_answer) {
         _answer = @"";
@@ -148,19 +141,16 @@
     return _answer;
 }
 
--(UIStatusBarStyle)preferredStatusBarStyle{
-    return UIStatusBarStyleLightContent;
+- (void)setAnswer:(NSString *)answer {
+    _answer = answer;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.equals setTitle:answer forState:UIControlStateSelected];
+        [self.equals setNeedsDisplay];
+    });
 }
 
-- (UILabel *)statusLabel {
-    if (!_statusLabel) {
-        _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(FOCUS_RECT_X, [self focusRectY]-40, self.view.bounds.size.width-2*FOCUS_RECT_X, [self focusRectY]-20)];
-        _statusLabel.textColor = [UIColor whiteColor];
-        _statusLabel.textAlignment = NSTextAlignmentCenter;
-        [self.imageView addSubview:_statusLabel];
-    }
-    [_statusLabel setNeedsDisplay];
-    return _statusLabel;
+-(UIStatusBarStyle)preferredStatusBarStyle{
+    return UIStatusBarStyleLightContent;
 }
 
 - (void)viewDidLoad {
@@ -205,6 +195,11 @@
          NSLog(@"%@", notification.object);
          [self symbolChange:notification];
      }];
+    self.focusRectX = [self leftEdge];
+    self.focusRectY = [self topEdge] + [self maxHeight]/2 - (self.view.frame.size.width/2 - [self leftEdge]);
+    self.frameAdjustmentX = 0;
+    self.frameAdjustmentY = 0;
+    self.equals.layer.cornerRadius = 6;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -214,6 +209,7 @@
     if (self.focusRect) {
         [self.focusRect removeFromSuperlayer];
     }
+
     self.focusRect = [self drawFocusRect:0];
     [[self.imageView layer] addSublayer:self.focusRect];
     
@@ -313,7 +309,7 @@
         [self clearScreen];
     } else {
         [self drawExpression];
-        [self drawAnswer];
+        //[self drawAnswer];
     }
 }
 
@@ -404,11 +400,44 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 #pragma mark - support UI
 
-- (IBAction)changeRect:(UIPanGestureRecognizer *)sender {
-    
+- (int)focusRectTop {
+    return MAX(MIN(self.frameAdjustmentY + self.focusRectY, [self topEdge]+[self maxHeight]/2-self.view.bounds.size.height/10), [self topEdge]);
+}
+
+- (int)focusRectHeight {
+    return MIN(MAX([self maxHeight] + 2*([self topEdge] - [self focusRectTop]), self.view.bounds.size.height/5), [self maxHeight]);
+}
+
+- (int)focusRectLeft {
+    return MAX(MIN(-self.frameAdjustmentX + self.focusRectX, self.view.bounds.size.width/2.5), [self leftEdge]);
+}
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    if (!self.recognitionOn) {
+        return NO;
+    }
+    return YES;
 }
 
 
+- (IBAction)changeRect:(UIPanGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        self.frameAdjustmentX = [sender translationInView:self.imageView].x;
+        self.frameAdjustmentY = -[sender translationInView:self.imageView].y;
+        [self.focusRect removeFromSuperlayer];
+        self.focusRect = [self drawFocusRect:0];
+        [[self.imageView layer] addSublayer:self.focusRect];
+    } else if (sender.state == UIGestureRecognizerStateChanged) {
+        self.frameAdjustmentX = [sender translationInView:self.imageView].x;
+        self.frameAdjustmentY = -[sender translationInView:self.imageView].y;
+        [self.focusRect removeFromSuperlayer];
+        self.focusRect = [self drawFocusRect:0];
+        [[self.imageView layer] addSublayer:self.focusRect];
+    } else if (sender.state == UIGestureRecognizerStateEnded) {
+        self.focusRectX = [self focusRectLeft];
+        self.focusRectY = [self focusRectTop];
+    }
+}
 
 - (CAShapeLayer *)drawFocusRect:(int)type {
     CAShapeLayer *focusRect = [CAShapeLayer layer];
@@ -424,10 +453,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     
     UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, width, height)];
-    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(FOCUS_RECT_X, [self focusRectY], width-2*FOCUS_RECT_X, height-[self focusRectY]-[self focusRectYBottom]) cornerRadius:6];
+    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake([self focusRectLeft], [self focusRectTop], width-2*[self focusRectLeft], [self focusRectHeight]) cornerRadius:6];
     [path appendPath:holePath];
     [path setUsesEvenOddFillRule:YES];
-    NSLog(@"focus rect y: %d", [self focusRectY]);
+    NSLog(@"focus rect y: %d", [self focusRectTop]);
     
     //focusRect.bounds = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);
     focusRect.path = path.CGPath;
@@ -499,10 +528,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 #pragma mark - recognition
 
-- (void)toggleRecognition {
+- (IBAction)toggleRecognition {
     if (self.recognitionOn) {
+        int size = MIN(60, 320/[self.answer length]);
+        self.equals.titleLabel.font = [self.equals.titleLabel.font fontWithSize:size];
+        [self.equals setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
+        [self.equals setSelected:YES];
         [self stopRecognition];
     } else {
+        self.equals.titleLabel.font = [self.equals.titleLabel.font fontWithSize:70];
+        [self.equals setTitleEdgeInsets:UIEdgeInsetsMake(-12, 0, 0, 0)];
+        [self.equals setSelected:NO];
+        [self.equals setTitle:@"=" forState:UIControlStateNormal];
         [self beginRecognition];
     }
 }
@@ -514,9 +551,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     dispatch_async(dispatch_get_main_queue(), ^{
         self.imageView.contentMode = UIViewContentModeScaleAspectFill;
         [self.imageView setImage:self.image];
+        for (UIView *view in self.imageView.subviews) {
+            if ([view isKindOfClass:[SymbolView class]]) {
+                view.userInteractionEnabled = YES;
+            }
+        }
     });
-    
-    [self.session stopRunning];
     
     [self saveToParse];
 }
@@ -530,7 +570,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     } else {
         [self.imageView setImage:nil];
         self.image = nil;
-        [self.session startRunning]; // blinks, how to fix?
+        self.answer = @"";
     }
     [self clearScreen];
     
@@ -597,7 +637,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     [self drawExpression];
     
-    [self drawAnswer];
+    //[self drawAnswer];
 }
 
 - (NSArray *)peelSigns:(NSArray *)symbols {
@@ -770,10 +810,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     float scale = (float)imgWidth / viewWidth;
     
-    float x = FOCUS_RECT_X * scale;
-    float y = [self padding] + [self focusRectY] * scale;
+    float x = [self focusRectLeft] * scale;
+    float y = [self padding] + [self focusRectTop] * scale;
     int width = imgWidth - 2 * x;
-    int height = imgHeight - ([self focusRectY]+[self focusRectYBottom]) * scale - 2 * [self padding];
+    int height = [self focusRectHeight] * scale;
     
     //NSLog(@"padding: %d, scale: %f, x: %f, y: %f, width: %d, height: %d", [self padding], scale, x, y, width, height);
     
@@ -809,47 +849,20 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     });
 }
 
-- (void)drawAnswer {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.answer length] > 0) {
-            self.answerLabel = [[UILabel alloc] initWithFrame:CGRectMake(FOCUS_RECT_X, self.view.bounds.size.height-[self focusRectYBottom]+10, self.view.bounds.size.width-2*FOCUS_RECT_X, [self focusRectYBottom]-20)];
-            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
 
-            paragraphStyle.alignment = NSTextAlignmentCenter;
-            
-            CGFloat size = MIN([self focusRectYBottom]-25, 400/([self.answer length]+3));
-            
-            NSMutableAttributedString *labelValue = [[NSMutableAttributedString alloc] initWithString:self.answer
-                                                                             attributes:@{NSForegroundColorAttributeName: [UIColor colorWithRed:1 green:1 blue:1 alpha:1],
-                                                                                          NSStrokeWidthAttributeName: @(0.0),
-                                                                                          NSStrokeColorAttributeName:[UIColor redColor],
-                                                                                          NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue-Light" size:size],
-                                                                                          NSParagraphStyleAttributeName:paragraphStyle }];
-            
-            self.answerLabel.attributedText = labelValue;
-            [self.answerLabel setNeedsDisplay];
-            self.answerLabel.layer.cornerRadius = 6;
-            self.answerLabel.layer.backgroundColor = [UIColor colorWithRed:247.0/255 green:82.0/255 blue:28.0/255 alpha:1].CGColor;
-            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleRecognition)];
-            [self.answerLabel addGestureRecognizer:tap];
-            self.answerLabel.userInteractionEnabled = YES;
-            
-            [self.imageView addSubview:self.answerLabel];
-        }
-    });
-}
 
 - (void)drawSymbol:(Symbol *)symbol {
-    int x = FOCUS_RECT_X + symbol.x * self.imageView.bounds.size.width  / self.image.size.width;
+    int x = [self focusRectLeft] + symbol.x * self.imageView.bounds.size.width  / self.image.size.width;
     //NSLog(@"image size: %f %f", self.image.size.width, self.image.size.height);
     //NSLog(@"imageView size: %f %f", self.imageView.bounds.size.width, self.imageView.bounds.size.height);
-    int y = [self focusRectY] + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
+    int y = [self focusRectTop] + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
     //NSLog(@"x: %d, y: %d, padding: %d", x, y, [self padding]);
     SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.fontSize*0.55, self.fontSize*0.8) symbol:symbol.symbol];
     
     //digitLabel.fontSize = self.fontSize;
     digitLabel.type = symbol.type;
     digitLabel.symbolIndex = [self.symbols indexOfObjectIdenticalTo:symbol];
+    digitLabel.userInteractionEnabled = NO;
     [self.imageView addSubview:digitLabel];
     [digitLabel addObserver:self forKeyPath:@"targetContentOffset" options:0 context:nil];
 }
@@ -864,7 +877,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         [self updateAdjustedSymbol:index];
         dispatch_async(self.queue, ^{
             [self makeExpression];
-            [self drawAnswer];
+            //[self drawAnswer];
         });
     });
 }

@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="KhV-bo-0Ph">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Recognition View Controller-->
@@ -78,12 +79,32 @@
                                     <constraint firstAttribute="height" constant="10" id="06e-9r-bU9"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gm6-Cs-1am">
+                                <rect key="frame" x="16" y="518" width="568" height="74"/>
+                                <color key="backgroundColor" red="0.96862745098039216" green="0.32156862745098036" blue="0.10980392156862745" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="74" id="dju-hP-CYZ"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="80"/>
+                                <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <state key="normal" title="=">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="selected">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="toggleRecognition" destination="0pz-9x-sfy" eventType="touchUpInside" id="Zes-7a-05W"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="FIu-Po-CLG" firstAttribute="top" secondItem="f9p-2G-xhC" secondAttribute="bottom" id="3Rs-oo-9vb"/>
                             <constraint firstItem="0cf-bU-LAc" firstAttribute="trailing" secondItem="ZYx-Pf-GQY" secondAttribute="trailing" id="3uW-Ob-na6"/>
+                            <constraint firstItem="BXc-cZ-9vc" firstAttribute="top" secondItem="Gm6-Cs-1am" secondAttribute="bottom" constant="8" symbolic="YES" id="4mw-1F-TOD"/>
                             <constraint firstItem="FIu-Po-CLG" firstAttribute="centerY" secondItem="4cS-GK-PR7" secondAttribute="centerY" id="5xb-vi-Qbi"/>
                             <constraint firstItem="c4K-er-Sde" firstAttribute="bottom" secondItem="BXc-cZ-9vc" secondAttribute="top" id="6KS-oh-b1p"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="leading" secondItem="c4K-er-Sde" secondAttribute="leading" id="DDS-wz-XpY"/>
@@ -94,6 +115,7 @@
                             <constraint firstItem="Sz2-7t-Nq1" firstAttribute="top" secondItem="FIu-Po-CLG" secondAttribute="top" id="Pay-i0-tvz"/>
                             <constraint firstItem="tBW-JF-tBg" firstAttribute="centerY" secondItem="FIu-Po-CLG" secondAttribute="centerY" id="Q42-e9-5Gw"/>
                             <constraint firstItem="c4K-er-Sde" firstAttribute="top" secondItem="k6F-Su-JSB" secondAttribute="top" id="VjR-1d-UfV"/>
+                            <constraint firstItem="Gm6-Cs-1am" firstAttribute="centerX" secondItem="tBW-JF-tBg" secondAttribute="centerX" id="ZGJ-xD-ZkT"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="top" secondItem="c4K-er-Sde" secondAttribute="top" id="a5h-oj-lMS"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="bottom" secondItem="BXc-cZ-9vc" secondAttribute="top" id="eJL-le-Vx8"/>
                             <constraint firstItem="0cf-bU-LAc" firstAttribute="centerY" secondItem="Sz2-7t-Nq1" secondAttribute="centerY" id="jn1-hO-DEB"/>
@@ -101,13 +123,21 @@
                             <constraint firstAttribute="trailing" secondItem="c4K-er-Sde" secondAttribute="trailing" id="mmn-Cd-AJx"/>
                             <constraint firstItem="tBW-JF-tBg" firstAttribute="leading" secondItem="FIu-Po-CLG" secondAttribute="trailing" id="nAN-5S-lEW"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="trailing" secondItem="c4K-er-Sde" secondAttribute="trailing" id="oJ3-8g-6sY"/>
+                            <constraint firstItem="Gm6-Cs-1am" firstAttribute="leading" secondItem="k6F-Su-JSB" secondAttribute="leadingMargin" id="riM-Uw-Ufx"/>
                             <constraint firstItem="0cf-bU-LAc" firstAttribute="width" secondItem="4cS-GK-PR7" secondAttribute="width" id="ti0-Na-abt"/>
+                            <constraint firstItem="Gm6-Cs-1am" firstAttribute="trailing" secondItem="k6F-Su-JSB" secondAttribute="trailingMargin" id="uyB-Vt-Z7U"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="leading" secondItem="4cS-GK-PR7" secondAttribute="leading" id="yU2-z3-YTW"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="ZGJ-xD-ZkT"/>
+                            </mask>
+                        </variation>
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="noX-Wb-Vt0"/>
                     <connections>
+                        <outlet property="equals" destination="Gm6-Cs-1am" id="xkW-rA-dED"/>
                         <outlet property="flashButton" destination="FIu-Po-CLG" id="1r0-78-jC2"/>
                         <outlet property="imageView" destination="ZYx-Pf-GQY" id="3BD-mK-B6n"/>
                         <outlet property="previewView" destination="c4K-er-Sde" id="fYB-9G-vfO"/>
@@ -117,6 +147,7 @@
                 <panGestureRecognizer minimumNumberOfTouches="1" id="Ezh-GQ-t6A">
                     <connections>
                         <action selector="changeRect:" destination="0pz-9x-sfy" id="ZL8-HJ-est"/>
+                        <outlet property="delegate" destination="0pz-9x-sfy" id="lsO-UO-978"/>
                     </connections>
                 </panGestureRecognizer>
             </objects>
