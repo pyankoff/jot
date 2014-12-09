@@ -24,6 +24,7 @@
 		554960DB1A1269280019E491 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 554960D91A1269280019E491 /* LaunchScreen.xib */; };
 		554960E71A1269280019E491 /* jotTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 554960E61A1269280019E491 /* jotTests.m */; };
 		554A99B31A30935E0074CF8E /* nets in Resources */ = {isa = PBXBuildFile; fileRef = 554A99B21A30935E0074CF8E /* nets */; };
+		556107D31A36FD24001AF191 /* FocusRectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 556107D21A36FD24001AF191 /* FocusRectView.swift */; };
 		5585F9FB1A1F252100EA5CFB /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5585F9FA1A1F252100EA5CFB /* Accelerate.framework */; };
 		5585F9FE1A1F252B00EA5CFB /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5585F9FC1A1F252B00EA5CFB /* opencv2.framework */; };
 		5585FA021A1F258800EA5CFB /* RecognitionViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5585FA011A1F258800EA5CFB /* RecognitionViewController.mm */; };
@@ -82,6 +83,7 @@
 		554960E51A1269280019E491 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		554960E61A1269280019E491 /* jotTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jotTests.m; sourceTree = "<group>"; };
 		554A99B21A30935E0074CF8E /* nets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = nets; sourceTree = "<group>"; };
+		556107D21A36FD24001AF191 /* FocusRectView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FocusRectView.swift; sourceTree = "<group>"; };
 		5585F9FA1A1F252100EA5CFB /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		5585F9FC1A1F252B00EA5CFB /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
 		5585FA001A1F258800EA5CFB /* RecognitionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecognitionViewController.h; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				5585FB401A1F29AA00EA5CFB /* framework */,
 				5585FA001A1F258800EA5CFB /* RecognitionViewController.h */,
 				5585FA011A1F258800EA5CFB /* RecognitionViewController.mm */,
+				556107D21A36FD24001AF191 /* FocusRectView.swift */,
 				55C86D0C1A2B339C00507449 /* SymbolView.swift */,
 				55B88A8D1A25F9B300300CA1 /* InfoViewController.swift */,
 				552975991A247C1A00F0D12B /* MainViewController.h */,
@@ -368,6 +371,7 @@
 				55C86D0D1A2B339C00507449 /* SymbolView.swift in Sources */,
 				55E4220E1A264F4800231981 /* AAPLPreviewView.m in Sources */,
 				5585FA081A1F25F200EA5CFB /* Symbol.mm in Sources */,
+				556107D31A36FD24001AF191 /* FocusRectView.swift in Sources */,
 				554960CD1A1269270019E491 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

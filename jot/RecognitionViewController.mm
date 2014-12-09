@@ -51,13 +51,10 @@
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
 
 @property (strong, nonatomic) dispatch_queue_t queue;
-@property (strong, nonatomic) CAShapeLayer *focusRect;
 
 //focusRect
-@property (nonatomic) int focusRectX;
-@property (nonatomic) int focusRectY;
-@property (nonatomic) int frameAdjustmentX;
-@property (nonatomic) int frameAdjustmentY;
+@property (weak, nonatomic) IBOutlet FocusRectView *focusRectView;
+
 
 // Simulator
 @property (nonatomic) BOOL onSimulator;
@@ -69,18 +66,6 @@
 
 
 #pragma mark - initializations
-
-- (int)topEdge {
-    return self.flashButton.frame.origin.y + self.flashButton.frame.size.height + 10;
-}
-
-- (int)maxHeight {
-    return self.equals.frame.origin.y - [self topEdge] - 30;
-}
-
-- (int)leftEdge {
-    return self.equals.frame.origin.x;
-}
 
 - (NSUInteger)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAllButUpsideDown;
@@ -195,23 +180,28 @@
          NSLog(@"%@", notification.object);
          [self symbolChange:notification];
      }];
-    self.focusRectX = [self leftEdge];
-    self.focusRectY = [self topEdge] + [self maxHeight]/2 - (self.view.frame.size.width/2 - [self leftEdge]);
-    self.frameAdjustmentX = 0;
-    self.frameAdjustmentY = 0;
+    
+    [self setupFocusRect:self.view.bounds.size];
+    
     self.equals.layer.cornerRadius = 6;
+}
+
+- (void)setupFocusRect:(CGSize)size {
+    self.focusRectView.leftEdge = self.equals.frame.origin.x;
+    self.focusRectView.topEdge = self.flashButton.frame.size.height + 30;
+    self.focusRectView.maxHeight = size.height - self.equals.frame.size.height - self.focusRectView.topEdge - 30;
+    
+    self.focusRectView.baseX = self.focusRectView.leftEdge;
+    self.focusRectView.baseY = self.focusRectView.topEdge + self.focusRectView.maxHeight/2 - (size.width/2 - self.focusRectView.leftEdge);
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [self setupFocusRect:size];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
-    if (self.focusRect) {
-        [self.focusRect removeFromSuperlayer];
-    }
-
-    self.focusRect = [self drawFocusRect:0];
-    [[self.imageView layer] addSublayer:self.focusRect];
     
     if (!self.onSimulator) {
         dispatch_async([self sessionQueue], ^{
@@ -300,19 +290,13 @@
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)toInterfaceOrientation];
-    
-    [self.focusRect removeFromSuperlayer];
-    self.focusRect = [self drawFocusRect:1];
-    [[self.imageView layer] addSublayer:self.focusRect];
-    
+
     if (self.recognitionOn) {
         [self clearScreen];
     } else {
         [self drawExpression];
-        //[self drawAnswer];
     }
 }
-
 
 #pragma mark Utilities
 
@@ -400,18 +384,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 #pragma mark - support UI
 
-- (int)focusRectTop {
-    return MAX(MIN(self.frameAdjustmentY + self.focusRectY, [self topEdge]+[self maxHeight]/2-self.view.bounds.size.height/10), [self topEdge]);
-}
-
-- (int)focusRectHeight {
-    return MIN(MAX([self maxHeight] + 2*([self topEdge] - [self focusRectTop]), self.view.bounds.size.height/5), [self maxHeight]);
-}
-
-- (int)focusRectLeft {
-    return MAX(MIN(-self.frameAdjustmentX + self.focusRectX, self.view.bounds.size.width/2.5), [self leftEdge]);
-}
-
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if (!self.recognitionOn) {
         return NO;
@@ -422,49 +394,17 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (IBAction)changeRect:(UIPanGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateBegan) {
-        self.frameAdjustmentX = [sender translationInView:self.imageView].x;
-        self.frameAdjustmentY = -[sender translationInView:self.imageView].y;
-        [self.focusRect removeFromSuperlayer];
-        self.focusRect = [self drawFocusRect:0];
-        [[self.imageView layer] addSublayer:self.focusRect];
+        self.focusRectView.adjustmentX = -[sender translationInView:self.imageView].x;
+        self.focusRectView.adjustmentY = -[sender translationInView:self.imageView].y;
     } else if (sender.state == UIGestureRecognizerStateChanged) {
-        self.frameAdjustmentX = [sender translationInView:self.imageView].x;
-        self.frameAdjustmentY = -[sender translationInView:self.imageView].y;
-        [self.focusRect removeFromSuperlayer];
-        self.focusRect = [self drawFocusRect:0];
-        [[self.imageView layer] addSublayer:self.focusRect];
+        self.focusRectView.adjustmentX = -[sender translationInView:self.imageView].x;
+        self.focusRectView.adjustmentY = -[sender translationInView:self.imageView].y;
     } else if (sender.state == UIGestureRecognizerStateEnded) {
-        self.focusRectX = [self focusRectLeft];
-        self.focusRectY = [self focusRectTop];
+        self.focusRectView.baseX = self.focusRectView.left;
+        self.focusRectView.baseY = self.focusRectView.top;
+        self.focusRectView.adjustmentX = 0;
+        self.focusRectView.adjustmentY = 0;
     }
-}
-
-- (CAShapeLayer *)drawFocusRect:(int)type {
-    CAShapeLayer *focusRect = [CAShapeLayer layer];
-    
-    CGFloat width, height;
-    if (type == 0) {
-        width = self.view.bounds.size.width;
-        height = self.view.bounds.size.height;
-    } else {
-        width = self.view.bounds.size.height;
-        height = self.view.bounds.size.width;
-    }
-    
-    
-    UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, width, height)];
-    UIBezierPath *holePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake([self focusRectLeft], [self focusRectTop], width-2*[self focusRectLeft], [self focusRectHeight]) cornerRadius:6];
-    [path appendPath:holePath];
-    [path setUsesEvenOddFillRule:YES];
-    NSLog(@"focus rect y: %d", [self focusRectTop]);
-    
-    //focusRect.bounds = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);
-    focusRect.path = path.CGPath;
-    focusRect.fillRule = kCAFillRuleEvenOdd;
-    focusRect.fillColor = [UIColor blackColor].CGColor;
-    focusRect.opacity = 0.15;
-    
-    return focusRect;
 }
 
 #pragma mark - Parse
@@ -551,7 +491,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     dispatch_async(dispatch_get_main_queue(), ^{
         self.imageView.contentMode = UIViewContentModeScaleAspectFill;
         [self.imageView setImage:self.image];
-        for (UIView *view in self.imageView.subviews) {
+        for (UIView *view in self.focusRectView.subviews) {
             if ([view isKindOfClass:[SymbolView class]]) {
                 view.userInteractionEnabled = YES;
             }
@@ -785,13 +725,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (NSString *)getAnswer:(NSArray *)numbers signs:(NSArray *)signs {
     NSMutableString *expression = [[NSMutableString alloc] initWithString:@""];
-    NSLog(@"number: %@, signs: %@", numbers, signs);
+    //NSLog(@"number: %@, signs: %@", numbers, signs);
     [expression appendString:numbers[0]];
     for (int i = 0; i < [signs count]; i++) {
         [expression appendString:signs[i]];
         [expression appendString:numbers[i+1]];
     }
-    NSLog(@"expression: %@", expression);
+    //NSLog(@"expression: %@", expression);
     
     NSExpression *expressionToProcess = [NSExpression expressionWithFormat:expression];
     NSNumber *answer = [expressionToProcess expressionValueWithObject:nil context:nil];
@@ -806,14 +746,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     //NSLog(@"image to crop width: %f, height: %f", image.size.width, image.size.height);
     int viewWidth = self.view.bounds.size.width;
     int imgWidth = image.size.width;
-    int imgHeight = image.size.height;
     
     float scale = (float)imgWidth / viewWidth;
     
-    float x = [self focusRectLeft] * scale;
-    float y = [self padding] + [self focusRectTop] * scale;
+    float x = self.focusRectView.left * scale;
+    float y = [self padding] + self.focusRectView.top * scale;
     int width = imgWidth - 2 * x;
-    int height = [self focusRectHeight] * scale;
+    int height = self.focusRectView.height * scale;
     
     //NSLog(@"padding: %d, scale: %f, x: %f, y: %f, width: %d, height: %d", [self padding], scale, x, y, width, height);
     
@@ -831,12 +770,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 #pragma mark - display
 
 - (void)clearScreen {
-    for (UIView *view in self.imageView.subviews) {
+    for (UIView *view in self.focusRectView.subviews) {
         if ([view isKindOfClass:[SymbolView class]]) {
             [view removeObserver:self forKeyPath:@"targetContentOffset"];
         }
     }
-    [self.imageView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
+    [self.focusRectView.subviews makeObjectsPerformSelector: @selector(removeFromSuperview)];
 }
 
 - (void)drawExpression {
@@ -852,10 +791,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 
 - (void)drawSymbol:(Symbol *)symbol {
-    int x = [self focusRectLeft] + symbol.x * self.imageView.bounds.size.width  / self.image.size.width;
+    int x = self.focusRectView.left + symbol.x * self.imageView.bounds.size.width  / self.image.size.width;
     //NSLog(@"image size: %f %f", self.image.size.width, self.image.size.height);
     //NSLog(@"imageView size: %f %f", self.imageView.bounds.size.width, self.imageView.bounds.size.height);
-    int y = [self focusRectTop] + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
+    int y = self.focusRectView.top + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
     //NSLog(@"x: %d, y: %d, padding: %d", x, y, [self padding]);
     SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.fontSize*0.55, self.fontSize*0.8) symbol:symbol.symbol];
     
@@ -863,7 +802,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     digitLabel.type = symbol.type;
     digitLabel.symbolIndex = [self.symbols indexOfObjectIdenticalTo:symbol];
     digitLabel.userInteractionEnabled = NO;
-    [self.imageView addSubview:digitLabel];
+    [self.focusRectView addSubview:digitLabel];
     [digitLabel addObserver:self forKeyPath:@"targetContentOffset" options:0 context:nil];
 }
 

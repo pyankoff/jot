@@ -25,10 +25,14 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <gestureRecognizers/>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="Ezh-GQ-t6A" appends="YES" id="c2y-lP-NgY"/>
-                                </connections>
                             </imageView>
+                            <view opaque="NO" contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="fHa-aN-W6I" customClass="FocusRectView" customModule="JotCalculator" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="Ezh-GQ-t6A" appends="YES" id="VgW-l3-p1H"/>
+                                </connections>
+                            </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Sz2-7t-Nq1">
                                 <rect key="frame" x="382" y="20" width="55" height="55"/>
                                 <constraints>
@@ -114,7 +118,9 @@
                             <constraint firstItem="0cf-bU-LAc" firstAttribute="leading" secondItem="Sz2-7t-Nq1" secondAttribute="trailing" id="PQ6-Yp-zwQ"/>
                             <constraint firstItem="Sz2-7t-Nq1" firstAttribute="top" secondItem="FIu-Po-CLG" secondAttribute="top" id="Pay-i0-tvz"/>
                             <constraint firstItem="tBW-JF-tBg" firstAttribute="centerY" secondItem="FIu-Po-CLG" secondAttribute="centerY" id="Q42-e9-5Gw"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="fHa-aN-W6I" secondAttribute="trailing" constant="-16" id="Tf7-Ug-dan"/>
                             <constraint firstItem="c4K-er-Sde" firstAttribute="top" secondItem="k6F-Su-JSB" secondAttribute="top" id="VjR-1d-UfV"/>
+                            <constraint firstItem="fHa-aN-W6I" firstAttribute="top" secondItem="f9p-2G-xhC" secondAttribute="bottom" constant="-20" id="Xtg-dr-SvT"/>
                             <constraint firstItem="Gm6-Cs-1am" firstAttribute="centerX" secondItem="tBW-JF-tBg" secondAttribute="centerX" id="ZGJ-xD-ZkT"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="top" secondItem="c4K-er-Sde" secondAttribute="top" id="a5h-oj-lMS"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="bottom" secondItem="BXc-cZ-9vc" secondAttribute="top" id="eJL-le-Vx8"/>
@@ -122,7 +128,9 @@
                             <constraint firstItem="FIu-Po-CLG" firstAttribute="leading" secondItem="4cS-GK-PR7" secondAttribute="trailing" id="kUF-2L-0iZ"/>
                             <constraint firstAttribute="trailing" secondItem="c4K-er-Sde" secondAttribute="trailing" id="mmn-Cd-AJx"/>
                             <constraint firstItem="tBW-JF-tBg" firstAttribute="leading" secondItem="FIu-Po-CLG" secondAttribute="trailing" id="nAN-5S-lEW"/>
+                            <constraint firstItem="BXc-cZ-9vc" firstAttribute="top" secondItem="fHa-aN-W6I" secondAttribute="bottom" id="nUo-0o-QNg"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="trailing" secondItem="c4K-er-Sde" secondAttribute="trailing" id="oJ3-8g-6sY"/>
+                            <constraint firstItem="fHa-aN-W6I" firstAttribute="leading" secondItem="k6F-Su-JSB" secondAttribute="leadingMargin" constant="-16" id="pFY-SN-9KR"/>
                             <constraint firstItem="Gm6-Cs-1am" firstAttribute="leading" secondItem="k6F-Su-JSB" secondAttribute="leadingMargin" id="riM-Uw-Ufx"/>
                             <constraint firstItem="0cf-bU-LAc" firstAttribute="width" secondItem="4cS-GK-PR7" secondAttribute="width" id="ti0-Na-abt"/>
                             <constraint firstItem="Gm6-Cs-1am" firstAttribute="trailing" secondItem="k6F-Su-JSB" secondAttribute="trailingMargin" id="uyB-Vt-Z7U"/>
@@ -139,6 +147,7 @@
                     <connections>
                         <outlet property="equals" destination="Gm6-Cs-1am" id="xkW-rA-dED"/>
                         <outlet property="flashButton" destination="FIu-Po-CLG" id="1r0-78-jC2"/>
+                        <outlet property="focusRectView" destination="fHa-aN-W6I" id="rKm-2T-bHx"/>
                         <outlet property="imageView" destination="ZYx-Pf-GQY" id="3BD-mK-B6n"/>
                         <outlet property="previewView" destination="c4K-er-Sde" id="fYB-9G-vfO"/>
                     </connections>
