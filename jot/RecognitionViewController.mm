@@ -188,18 +188,19 @@
          [self symbolChange:notification];
      }];
     
-    [self setupFocusRect:self.view.bounds.size];
-    
     self.equals.layer.cornerRadius = 6;
 }
 
 - (void)setupFocusRect:(CGSize)size {
     self.focusRectView.leftEdge = self.equals.frame.origin.x;
-    self.focusRectView.topEdge = self.flashButton.frame.size.height + 30;
-    self.focusRectView.maxHeight = size.height - self.equals.frame.size.height - self.focusRectView.topEdge - 30;
+    self.focusRectView.topEdge = self.flashButton.frame.size.height + 20;
+    self.focusRectView.maxHeight = size.height - self.equals.frame.size.height - self.focusRectView.topEdge - 20;
     
     self.focusRectView.baseX = self.focusRectView.leftEdge;
-    self.focusRectView.baseY = self.focusRectView.topEdge + self.focusRectView.maxHeight/2 - (size.width/2 - self.focusRectView.leftEdge);
+    self.focusRectView.baseY = MAX(self.focusRectView.topEdge + self.focusRectView.maxHeight/2 - (size.width/2 - self.focusRectView.leftEdge), self.focusRectView.topEdge);
+    self.focusRectView.adjustmentX = 0;
+    self.focusRectView.adjustmentY = 0;
+    [self.focusRectView setNeedsDisplay];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
@@ -218,6 +219,8 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self setupFocusRect:self.view.bounds.size];
     
     if (!self.onSimulator) {
         dispatch_async([self sessionQueue], ^{
@@ -403,14 +406,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     if (sender.state == UIGestureRecognizerStateBegan) {
         self.focusRectView.adjustmentX = -[sender translationInView:self.imageView].x * quadrantAdjustment.x;
         self.focusRectView.adjustmentY = -[sender translationInView:self.imageView].y * quadrantAdjustment.y;
+        [self.focusRectView setNeedsDisplay];
     } else if (sender.state == UIGestureRecognizerStateChanged) {
         self.focusRectView.adjustmentX = -[sender translationInView:self.imageView].x * quadrantAdjustment.x;
         self.focusRectView.adjustmentY = -[sender translationInView:self.imageView].y * quadrantAdjustment.y;
+        //NSLog(@"%f, %f", self.focusRectView.adjustmentX, self.focusRectView.adjustmentY);
+        [self.focusRectView setNeedsDisplay];
     } else if (sender.state == UIGestureRecognizerStateEnded) {
         self.focusRectView.baseX = self.focusRectView.left;
         self.focusRectView.baseY = self.focusRectView.top;
         self.focusRectView.adjustmentX = 0;
         self.focusRectView.adjustmentY = 0;
+        [self.focusRectView setNeedsDisplay];
     }
 }
 

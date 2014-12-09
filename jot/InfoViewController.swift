@@ -12,29 +12,54 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
     
     @IBOutlet var scrollView: UIScrollView!
     
-    var pageImages: [UIImage] = []
-    var pageLabels: [NSString] = ["Just point your camera at expression and get answer instantly.",
-            "Change symbols or tap answer for new calculation."]
+    let pageImages = ["imgs/column.jpg",
+                "imgs/separate.jpg",
+                "imgs/no_shit.jpg",
+                "imgs/no_shit2.jpg",
+                "imgs/iphone_hand.png",
+                "imgs/iphone_swipe.png"]
+    
+    let pageHeadings: [NSString] = ["Write","Focus","Compute","Adjust"]
+    
+    var pageLabels: [NSString] = ["Write expression in column",
+            "Make sure all digits are separated",
+            "Adjust frame to fit the expression",
+            "Don't include any other marks",
+            "Tap equals sign to get answer. Tap answer to start new calculation",
+            "Swipe digits to adjust"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        pageImages = [UIImage(named: "imgs/iphone.png")!,
-            UIImage(named: "imgs/iphone_hand.png")!]
-        
         scrollView.frame.size = CGSize(width: min(self.view.bounds.width, self.view.bounds.height), height: max(self.view.bounds.width, self.view.bounds.height))
         
         scrollView.contentSize = CGSize(width: scrollView.frame.size.width,
-            height: scrollView.frame.size.height * CGFloat(pageImages.count+1))
+            height: scrollView.frame.size.height * CGFloat(pageHeadings.count+1))
         
-        for i in 0..<pageImages.count {
-            
-            addCaption(i)
-            addImage(i)
-            addCloseButtons()
-            addContacts()
-            
-        }
+        addHeading(0)
+        addCaption(0, page: 0, y: 0.2*height())
+        addImage(pageImages[0], page: 0, y: 0.25*height(), imgHeight: 0.3*height())
+        addCaption(1, page: 0, y: 0.6*height())
+        addImage(pageImages[1], page: 0, y: 0.65*height(), imgHeight: 0.3*height())
+        
+        addHeading(1)
+        addCaption(2, page: 1, y: 0.2*height())
+        addImage(pageImages[2], page: 1, y: 0.25*height(), imgHeight: 0.3*height())
+        addCaption(3, page: 1, y: 0.6*height())
+        addImage(pageImages[3], page: 1, y: 0.65*height(), imgHeight: 0.3*height())
+        
+        
+        addHeading(2)
+        addCaption(4, page: 2, y: 0.2*height())
+        addImage(pageImages[4], page: 2, y: 0.3*height(), imgHeight: 0.65*height())
+        
+        
+        addHeading(3)
+        addCaption(5, page: 3, y: 0.2*height())
+        addImage(pageImages[5], page: 3, y: 0.3*height(), imgHeight: 0.65*height())
+
+        addCloseButtons()
+        addContacts()
         
     }
     
@@ -47,11 +72,11 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
     }
     
     func addContacts() {
-        let totalHeight = height() * CGFloat(pageImages.count) + 0.1*height()
+        let totalHeight = height() * CGFloat(pageHeadings.count) + 0.1*height()
         let caption = UILabel(frame: CGRect(x: 20, y: totalHeight, width: width() - 40, height: 40))
         caption.textColor = UIColor.whiteColor()
         caption.textAlignment = NSTextAlignment.Center
-        caption.text = "Please contact us:"
+        caption.text = "Tell us what you think:"
         caption.font = UIFont(name: "HelveticaNeue-Light", size: 28)
         caption.numberOfLines = 1
         
@@ -61,7 +86,7 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
         let icons = ["facebook", "twitter", "mail"]
         
         for i in 0...2 {
-            let y = 0.2 * height() +  height() * CGFloat(pageImages.count) + 0.20 * height() * CGFloat(i)
+            let y = 0.2 * height() +  height() * CGFloat(pageHeadings.count) + 0.20 * height() * CGFloat(i)
             let icon = UIButton(frame: CGRect(x: x, y: y, width: iconHeight, height: iconHeight))
             icon.setImage(UIImage(named: icons[i]), forState: .Normal)
             icon.addTarget(self, action: "goTo:", forControlEvents: .TouchUpInside)
@@ -83,45 +108,64 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    func addCaption(i: Int) {
-        let y = 0.1*height() + height() * CGFloat(i)
+    func addHeading(page: Int) {
+        let y = 0.03 * height() + height() * CGFloat(page)
         let caption = UILabel(frame: CGRect(x: 20, y: y, width: width() - 40, height: 120))
+        
         caption.textColor = UIColor.whiteColor()
         caption.textAlignment = NSTextAlignment.Center
-        caption.text = pageLabels[i]
-        caption.font = UIFont(name: "HelveticaNeue-Light", size: 28)
-        caption.numberOfLines = 3
+        caption.text = pageHeadings[page]
+        caption.font = UIFont(name: "HelveticaNeue-UltraLight", size: 32)
+        caption.numberOfLines = 1
+        
         scrollView.addSubview(caption)
     }
     
-    func addImage(i: Int) {
-        let imageWidth = pageImages[i].size.width
-        let imageHeight = pageImages[i].size.height
+    func addCaption(index: Int, page: Int, y: CGFloat) {
+        let y = y + height() * CGFloat(page)
+        let caption = UILabel(frame: CGRect(x: 20, y: y, width: width() - 40, height: 120))
         
-        let photoHeight = 0.65 * height()
-        let photoWidth = imageWidth * photoHeight / imageHeight
+        caption.textColor = UIColor.whiteColor()
+        caption.textAlignment = NSTextAlignment.Center
+        caption.text = pageLabels[index]
+        caption.font = UIFont(name: "HelveticaNeue-Light", size: 18)
+        caption.numberOfLines = 0
+        caption.sizeToFit()
+        let captionFrame = CGRect(x: 20, y: y, width: width() - 40, height: caption.frame.height)
+        caption.frame = captionFrame
         
-        let photoY = (0.3 * height()) +  height() * CGFloat(i)
+        scrollView.addSubview(caption)
+    }
+    
+    func addImage(imageName: NSString, page: Int, y: CGFloat, imgHeight: CGFloat) {
+        let image = UIImage(named: imageName)!
+        let imageWidth = image.size.width
+        let imageHeight = image.size.height
+        
+        let photoHeight = imgHeight //0.65 * height()
+        let photoWidth = 0.9 * width()
+        
+        let photoY = y +  height() * CGFloat(page)
         var frame = CGRect(x: (width()-photoWidth)/2, y: photoY, width: photoWidth, height: photoHeight)
         
-        let image = UIImageView(image: pageImages[i])
-        image.contentMode = .ScaleAspectFill
-        image.frame = frame
-        scrollView.addSubview(image)
+        let imageView = UIImageView(image: image)
+        imageView.contentMode = UIViewContentMode.ScaleAspectFit
+        imageView.frame = frame
+        scrollView.addSubview(imageView)
     }
     
     func addCloseButtons() {
-        let totalHeight = height() * CGFloat(pageImages.count+1) - 40
-        let closeTop = UIButton(frame: CGRect(x: width() - 70, y: 30, width: 50, height: 20))
+        let closeTop = UIButton(frame: CGRect(x: width() - 90, y: 20, width: 80, height: 40))
         closeTop.setTitle("Close", forState: .Normal)
         closeTop.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-        closeTop.titleLabel!.font = UIFont(name: "HelveticaNeue-UltraLight", size:18)
+        closeTop.titleLabel!.font = UIFont(name: "HelveticaNeue-Light", size:18)
         closeTop.addTarget(self, action: "close", forControlEvents: .TouchUpInside)
         
-        let closeBottom = UIButton(frame: CGRect(x: width()/2-25, y: totalHeight, width: 50, height: 20))
+        let totalHeight = height() * CGFloat(pageHeadings.count+1) - 60
+        let closeBottom = UIButton(frame: CGRect(x: width()/2-40, y: totalHeight, width: 80, height: 40))
         closeBottom.setTitle("Close", forState: .Normal)
         closeBottom.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-        closeBottom.titleLabel!.font = UIFont(name: "HelveticaNeue", size:18)
+        closeBottom.titleLabel!.font = UIFont(name: "HelveticaNeue-Light", size:18)
         closeBottom.addTarget(self, action: "close", forControlEvents: .TouchUpInside)
         
         scrollView.addSubview(closeTop)

@@ -10,47 +10,19 @@ import UIKit
 
 class FocusRectView: UIView {
     
-    var leftEdge: CGFloat = 0 {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
+    var leftEdge: CGFloat = 0
     
-    var topEdge: CGFloat = 0 {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
+    var topEdge: CGFloat = 0
     
-    var maxHeight: CGFloat = 0 {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
+    var maxHeight: CGFloat = 0
     
-    var adjustmentY: CGFloat = 0 {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
+    var adjustmentY: CGFloat = 0
     
-    var adjustmentX: CGFloat = 0 {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
+    var adjustmentX: CGFloat = 0
     
-    var baseX: CGFloat = 0 {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
+    var baseX: CGFloat = 0
     
-    var baseY: CGFloat = 0 {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
+    var baseY: CGFloat = 0
     
     func top() -> CGFloat {
         return max(min(adjustmentY + baseY, topEdge+maxHeight/2-frame.height/10), topEdge);
@@ -70,7 +42,7 @@ class FocusRectView: UIView {
     
     override func drawRect(rect: CGRect) {
         let c = UIGraphicsGetCurrentContext()
-        
+        //println("\(left()), \(top()), \(width()), \(height())")
         var path = UIBezierPath(rect: frame)
         var holePath = UIBezierPath(roundedRect: CGRectMake(left(), top(), width(), height()), cornerRadius: 6)
         path.appendPath(holePath)
