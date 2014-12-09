@@ -142,6 +142,13 @@
     
     [super viewDidLoad];
     
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if (![defaults objectForKey:@"firstRun"]) {
+        [defaults setObject:[NSDate date] forKey:@"firstRun"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        [self performSegueWithIdentifier:@"info" sender:self];
+    }
+    
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
@@ -391,18 +398,33 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 
 - (IBAction)changeRect:(UIPanGestureRecognizer *)sender {
+    CGPoint initialPoint = CGPointMake([sender locationInView:self.imageView].x-[sender translationInView:self.imageView].x, [sender locationInView:self.imageView].y-[sender translationInView:self.imageView].y);
+    CGPoint quadrantAdjustment = [self getQuadrant:initialPoint];
     if (sender.state == UIGestureRecognizerStateBegan) {
-        self.focusRectView.adjustmentX = -[sender translationInView:self.imageView].x;
-        self.focusRectView.adjustmentY = -[sender translationInView:self.imageView].y;
+        self.focusRectView.adjustmentX = -[sender translationInView:self.imageView].x * quadrantAdjustment.x;
+        self.focusRectView.adjustmentY = -[sender translationInView:self.imageView].y * quadrantAdjustment.y;
     } else if (sender.state == UIGestureRecognizerStateChanged) {
-        self.focusRectView.adjustmentX = -[sender translationInView:self.imageView].x;
-        self.focusRectView.adjustmentY = -[sender translationInView:self.imageView].y;
+        self.focusRectView.adjustmentX = -[sender translationInView:self.imageView].x * quadrantAdjustment.x;
+        self.focusRectView.adjustmentY = -[sender translationInView:self.imageView].y * quadrantAdjustment.y;
     } else if (sender.state == UIGestureRecognizerStateEnded) {
         self.focusRectView.baseX = self.focusRectView.left;
         self.focusRectView.baseY = self.focusRectView.top;
         self.focusRectView.adjustmentX = 0;
         self.focusRectView.adjustmentY = 0;
     }
+}
+
+- (CGPoint)getQuadrant:(CGPoint)initialPoint {
+    CGPoint adjustments = CGPointMake(1.0, 1.0);
+    if (initialPoint.x<self.view.bounds.size.width/2) {
+        adjustments.x = -1.0;
+    }
+    
+    if (initialPoint.y<self.view.bounds.size.height/2) {
+        adjustments.y = -1.0;
+    }
+    
+    return adjustments;
 }
 
 #pragma mark - Parse
@@ -468,7 +490,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (IBAction)toggleRecognition {
     if (self.recognitionOn) {
-        int size = MIN(60, 320/[self.answer length]);
+        int size = (int)MIN(60, 320/[self.answer length]);
         self.equals.titleLabel.font = [self.equals.titleLabel.font fontWithSize:size];
         [self.equals setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
         [self.equals setSelected:YES];

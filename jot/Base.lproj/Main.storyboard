@@ -44,7 +44,7 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <segue destination="YqK-Zy-Yuh" kind="presentation" id="ps5-Rl-wGf"/>
+                                    <segue destination="YqK-Zy-Yuh" kind="presentation" identifier="info" id="ps5-Rl-wGf"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FIu-Po-CLG">
