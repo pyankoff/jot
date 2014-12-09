@@ -197,6 +197,15 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [self setupFocusRect:size];
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        UIInterfaceOrientation toInterfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+        [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)toInterfaceOrientation];
+        if (self.recognitionOn) {
+            [self clearScreen];
+        } else {
+            [self drawExpression];
+        }
+    } completion:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -285,17 +294,6 @@
         
         [[self session] commitConfiguration];
     });
-}
-
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)toInterfaceOrientation];
-
-    if (self.recognitionOn) {
-        [self clearScreen];
-    } else {
-        [self drawExpression];
-    }
 }
 
 #pragma mark Utilities
@@ -550,7 +548,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)getBlocks:(NSArray *)symbols {
     NSArray *signsIndexes = [self peelSigns:symbols];
     NSMutableArray *numbersIndexes = [[NSMutableArray alloc] init];
-    NSLog(@"initial # simbols: %lu", (unsigned long)[symbols count]);
+    //NSLog(@"initial # simbols: %lu", (unsigned long)[symbols count]);
 
     NSPredicate *check = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
         Symbol *symbol = (Symbol *)evaluatedObject;
@@ -576,8 +574,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self makeExpression];
     
     [self drawExpression];
-    
-    //[self drawAnswer];
 }
 
 - (NSArray *)peelSigns:(NSArray *)symbols {
@@ -690,7 +686,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (void)makeExpression {
-    NSLog(@"making new expression");
+    //NSLog(@"making new expression");
     NSMutableArray *signs = [[NSMutableArray alloc] init];
     NSMutableArray *numbers = [[NSMutableArray alloc] init];
     
@@ -745,7 +741,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (UIImage *)cropImage:(UIImage *)image {
     //NSLog(@"image to crop width: %f, height: %f", image.size.width, image.size.height);
     int viewWidth = self.view.bounds.size.width;
-    int imgWidth = image.size.width;
+    int imgWidth = (int)image.size.width;
     
     float scale = (float)imgWidth / viewWidth;
     
