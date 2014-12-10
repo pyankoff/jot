@@ -24,8 +24,8 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
     var pageLabels: [NSString] = ["Write expression in column",
             "Make sure all digits are separated",
             "Adjust frame to fit the expression",
-            "Don't include any other marks",
-            "Tap equals sign to get answer. Tap answer to start new calculation",
+            "Don't include other marks",
+            "Tap equals sign to get an answer. Tap the answer to start new calculation",
             "Swipe digits to adjust"]
 
     override func viewDidLoad() {
@@ -38,15 +38,15 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
         
         addHeading(0)
         addCaption(0, page: 0, y: 0.2*height())
-        addImage(pageImages[0], page: 0, y: 0.25*height(), imgHeight: 0.3*height())
+        addImage(pageImages[0], page: 0, y: 0.26*height(), imgHeight: 0.3*height())
         addCaption(1, page: 0, y: 0.6*height())
-        addImage(pageImages[1], page: 0, y: 0.65*height(), imgHeight: 0.3*height())
+        addImage(pageImages[1], page: 0, y: 0.66*height(), imgHeight: 0.3*height())
         
         addHeading(1)
         addCaption(2, page: 1, y: 0.2*height())
-        addImage(pageImages[2], page: 1, y: 0.25*height(), imgHeight: 0.3*height())
+        addImage(pageImages[2], page: 1, y: 0.26*height(), imgHeight: 0.3*height())
         addCaption(3, page: 1, y: 0.6*height())
-        addImage(pageImages[3], page: 1, y: 0.65*height(), imgHeight: 0.3*height())
+        addImage(pageImages[3], page: 1, y: 0.66*height(), imgHeight: 0.3*height())
         
         
         addHeading(2)
@@ -103,7 +103,6 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
         } else if sender.tag == 1 {
             UIApplication.sharedApplication().openURL(NSURL(string: "http://twitter.com/jotcalculator")!)
         } else if sender.tag == 2 {
-            println("huy")
             UIApplication.sharedApplication().openURL(NSURL(string: "mailto:jotcalculator@gmail.com")!)
         }
     }

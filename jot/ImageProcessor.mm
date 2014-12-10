@@ -147,7 +147,7 @@
             }
         }
     } else {
-        NSLog(@"too many contours");
+        //NSLog(@"too many contours");
     }
     return foundDigits;
 }

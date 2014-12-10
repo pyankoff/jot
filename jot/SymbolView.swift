@@ -77,7 +77,7 @@ class SymbolView: UIScrollView, UIScrollViewDelegate {
     
     func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         nearestIndex = Int(round(targetContentOffset.memory.y / frame.height))
-        println("view: \(nearestIndex), \(symbolIndex)")
+        //println("view: \(nearestIndex), \(symbolIndex)")
         targetContentOffset.memory = CGPointMake(0, CGFloat(nearestIndex)*frame.height)
     }
     

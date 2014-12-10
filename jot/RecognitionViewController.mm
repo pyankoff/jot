@@ -156,7 +156,7 @@
         self.onSimulator = NO;
         [self createSession];
     } else {
-        NSLog(@"no camera");
+        //NSLog(@"no camera");
         self.onSimulator = YES;
     }
     
@@ -184,7 +184,7 @@
                          queue:nil
                     usingBlock:^(NSNotification *notification)
      {
-         NSLog(@"%@", notification.object);
+         //NSLog(@"%@", notification.object);
          [self symbolChange:notification];
      }];
     
@@ -267,7 +267,7 @@
         
         if (error)
         {
-            NSLog(@"%@", error);
+            //NSLog(@"%@", error);
         }
         
         [[self session] beginConfiguration];
@@ -476,7 +476,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             if (!error) {
                 symbol.parseObject[@"imgFile"] = imageFile;
             } else {
-                NSLog(@"%@", error);
+                //NSLog(@"%@", error);
             }
         }];
     }
@@ -485,7 +485,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)updateAdjustedSymbol:(int)i {
     Symbol *symbol = self.symbols[i];
     [symbol.parseObject setObject:[NSString stringWithFormat:@"%@", symbol.symbol] forKey:@"adjusted"];
-    NSLog(@"%@", symbol.parseObject[@"adjusted"]);
+    //NSLog(@"%@", symbol.parseObject[@"adjusted"]);
 }
 
 - (void)sendSymbolsToParse {
@@ -515,7 +515,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (void)stopRecognition {
-    NSLog(@"recognition stopped");
+    //NSLog(@"recognition stopped");
     self.recognitionOn = NO;
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -544,7 +544,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     [self clearScreen];
     
-    NSLog(@"recognition started");
+    //NSLog(@"recognition started");
     
     self.recognitionOn = YES;
     [self startRecognition];
@@ -592,14 +592,16 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         [numbersIndexes addObject:[self peelDigitsFrom:symbols]];
     }
     
-    if ([numbersIndexes count] == [signsIndexes count] + 1 and self.recognitionOn) {
+    if ([numbersIndexes count] == [signsIndexes count] + 1) {
         symbols = [self recognizeSymbols:symbols];
-        self.symbols = symbols;
-        self.signsIndexes = signsIndexes;
-        self.numbersIndexes = numbersIndexes;
+        if (self.recognitionOn) {
+            self.symbols = symbols;
+            self.signsIndexes = signsIndexes;
+            self.numbersIndexes = numbersIndexes;
         
-        [self display];
-    } else if ([numbersIndexes count] == 1 and [signsIndexes count] == 1 and self.recognitionOn) {
+            [self display];
+        }
+    } else if ([numbersIndexes count] == 1 and [signsIndexes count] == 1) {
         [signsIndexes removeAllObjects];
         [numbersIndexes removeAllObjects];
         [numbersIndexes addObject:[[NSMutableArray alloc] init]];
@@ -620,7 +622,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             if (symbol.image.rows < 0.8*self.averageHeight) {
                 symbol.type = @"sign";
                 [signsIndexes addObject:[NSNumber numberWithUnsignedInteger:i]];
-                [self alignRow:symbolsRow indexes:[numbersIndexes lastObject]];
+                [self alignRowIn:symbolsRow indexes:[numbersIndexes lastObject]];
                 [numbersIndexes addObject:[[NSMutableArray alloc] init]];
             } else {
                 symbol.type = @"digit";
@@ -628,16 +630,20 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             }
         }
         
-        symbols = [self recognizeSymbols:symbols];
-        self.symbols = symbolsRow;
-        self.signsIndexes = signsIndexes;
-        self.numbersIndexes = numbersIndexes;
+        [self alignRowIn:symbolsRow indexes:[numbersIndexes lastObject]];
+        symbolsRow = [[NSMutableArray alloc] initWithArray:[self recognizeSymbols:symbolsRow]];
         
-        [self display];
+        if (self.recognitionOn) {
+            self.symbols = symbolsRow;
+            self.signsIndexes = signsIndexes;
+            self.numbersIndexes = numbersIndexes;
+            
+            [self display];
+        }
     }
 }
 
-- (void)alignRow:(NSArray *)symbols indexes:(NSArray *)indexes {
+- (void)alignRowIn:(NSArray *)symbols indexes:(NSArray *)indexes {
     Symbol *firstSymbol = symbols[[[indexes firstObject] integerValue]];
     Symbol *lastSymbol = symbols[[[indexes lastObject] integerValue]];
     
@@ -725,22 +731,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         return [x1 compare:x2];
     }];
     
-    Symbol *firstSymbol = [row firstObject];
-    Symbol *lastSymbol = [row lastObject];
-    
-    if ([row count] > 1) {
-        for (int i = 0; i < [row count]; i++) {
-            Symbol *symbol = row[i];
-            symbol.x = firstSymbol.x + i * (lastSymbol.x - firstSymbol.x) / ([row count] - 1);
-        }
-    }
-    
     NSMutableArray *numbersRow = [[NSMutableArray alloc] init];
     
     for (Symbol *digit in row) {
         digit.type = @"digit";
         [numbersRow addObject:[NSNumber numberWithUnsignedInteger:[symbols indexOfObjectIdenticalTo:digit]]];
     }
+    
+    [self alignRowIn:symbols indexes:numbersRow];
 
     return numbersRow;
 }
@@ -795,13 +793,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             sign.y = ([numbers[i] integerValue] + [numbers[i+1] integerValue]) / 2;
         }*/
         self.answer = [self getAnswer:numbers signs:signs];
-        NSLog(@"%@", self.answer);
+        //NSLog(@"%@", self.answer);
     }
 }
 
 - (NSString *)getAnswer:(NSArray *)numbers signs:(NSArray *)signs {
     NSMutableString *expression = [[NSMutableString alloc] initWithString:@""];
-    NSLog(@"number: %@, signs: %@", numbers, signs);
+    //NSLog(@"number: %@, signs: %@", numbers, signs);
     [expression appendString:numbers[0]];
     for (int i = 0; i < [signs count]; i++) {
         [expression appendString:signs[i]];
@@ -883,7 +881,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)symbolChange:(NSNotification *)notification {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSLog(@"asdf");
         NSDictionary *change = (NSDictionary *)notification.object;
         int index = (int)((NSNumber *)[change objectForKey:@"index"]).integerValue;
         Symbol *symbol = self.symbols[index];
