@@ -254,11 +254,14 @@
         NSError *error = nil;
         
         AVCaptureDevice *videoDevice = [RecognitionViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
+        
+        [videoDevice lockForConfiguration:nil];
         if ([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked]) {
-            [videoDevice lockForConfiguration:nil];
             [videoDevice setFocusModeLockedWithLensPosition:0.3f completionHandler:nil];
-            [videoDevice unlockForConfiguration];
         }
+        [videoDevice setActiveVideoMinFrameDuration:CMTimeMake(1, 3)];
+        [videoDevice setActiveVideoMaxFrameDuration:CMTimeMake(1, 3)];
+        [videoDevice unlockForConfiguration];
         
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
         

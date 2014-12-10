@@ -112,8 +112,10 @@
                             <constraint firstItem="FIu-Po-CLG" firstAttribute="centerY" secondItem="4cS-GK-PR7" secondAttribute="centerY" id="5xb-vi-Qbi"/>
                             <constraint firstItem="c4K-er-Sde" firstAttribute="bottom" secondItem="BXc-cZ-9vc" secondAttribute="top" id="6KS-oh-b1p"/>
                             <constraint firstItem="ZYx-Pf-GQY" firstAttribute="leading" secondItem="c4K-er-Sde" secondAttribute="leading" id="DDS-wz-XpY"/>
+                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="trailing" secondItem="fHa-aN-W6I" secondAttribute="trailing" id="Dra-9W-RQJ"/>
                             <constraint firstItem="0cf-bU-LAc" firstAttribute="width" secondItem="tBW-JF-tBg" secondAttribute="width" id="FMR-g0-1Hj"/>
                             <constraint firstItem="Sz2-7t-Nq1" firstAttribute="leading" secondItem="tBW-JF-tBg" secondAttribute="trailing" id="L0g-4R-Rbd"/>
+                            <constraint firstItem="ZYx-Pf-GQY" firstAttribute="leading" secondItem="fHa-aN-W6I" secondAttribute="leading" id="MqO-B0-hbz"/>
                             <constraint firstItem="c4K-er-Sde" firstAttribute="leading" secondItem="k6F-Su-JSB" secondAttribute="leading" id="OFu-CQ-nXd"/>
                             <constraint firstItem="0cf-bU-LAc" firstAttribute="leading" secondItem="Sz2-7t-Nq1" secondAttribute="trailing" id="PQ6-Yp-zwQ"/>
                             <constraint firstItem="Sz2-7t-Nq1" firstAttribute="top" secondItem="FIu-Po-CLG" secondAttribute="top" id="Pay-i0-tvz"/>
@@ -138,6 +140,8 @@
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
+                                <exclude reference="Tf7-Ug-dan"/>
+                                <exclude reference="pFY-SN-9KR"/>
                                 <exclude reference="ZGJ-xD-ZkT"/>
                             </mask>
                         </variation>

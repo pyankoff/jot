@@ -47,7 +47,7 @@ class FocusRectView: UIView {
         var holePath = UIBezierPath(roundedRect: CGRectMake(left(), top(), width(), height()), cornerRadius: 6)
         path.appendPath(holePath)
         path.usesEvenOddFillRule = true
-
+        
         CGContextAddPath(c, path.CGPath)
         CGContextSetFillColorWithColor(c, UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).CGColor)
         CGContextDrawPath(c, kCGPathEOFill)
@@ -71,6 +71,7 @@ class FocusRectView: UIView {
         CGPathMoveToPoint(path, nil, 10, 40)
         CGPathAddLineToPoint(path, nil, 10, 10)
         CGPathAddLineToPoint(path, nil, 40, 10)
+
         CGContextAddPath(c, path)
         CGContextSetLineWidth(c, 4)
         CGContextSetStrokeColorWithColor(c , UIColor.whiteColor().CGColor)
