@@ -23,7 +23,6 @@
 @property (strong, nonatomic) Torch *torch;
 @property (nonatomic) BOOL recognitionOn;
 @property (weak, nonatomic) IBOutlet UIButton *equals;
-@property (nonatomic) int fontSize;
 
 // Flash
 @property (weak, nonatomic) IBOutlet UIButton *flashButton;
@@ -33,6 +32,7 @@
 @property (strong, nonatomic) NSArray *symbols;
 @property (strong, nonatomic) NSArray *signsIndexes;
 @property (strong, nonatomic) NSArray *numbersIndexes;
+@property (nonatomic) int averageHeight;
 @property (strong, nonatomic) NSString *answer;
 
 // Parse
@@ -578,7 +578,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 - (void)getBlocks:(NSArray *)symbols {
-    NSArray *signsIndexes = [self peelSigns:symbols];
+    NSArray *initialXs = [symbols valueForKeyPath:@"x"];
+    NSMutableArray *signsIndexes = [self peelSigns:symbols];
     NSMutableArray *numbersIndexes = [[NSMutableArray alloc] init];
     //NSLog(@"initial # simbols: %lu", (unsigned long)[symbols count]);
 
@@ -591,14 +592,61 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         [numbersIndexes addObject:[self peelDigitsFrom:symbols]];
     }
     
-    symbols = [self recognizeSymbols:symbols];
-    
     if ([numbersIndexes count] == [signsIndexes count] + 1 and self.recognitionOn) {
+        symbols = [self recognizeSymbols:symbols];
         self.symbols = symbols;
         self.signsIndexes = signsIndexes;
         self.numbersIndexes = numbersIndexes;
         
         [self display];
+    } else if ([numbersIndexes count] == 1 and [signsIndexes count] == 1 and self.recognitionOn) {
+        [signsIndexes removeAllObjects];
+        [numbersIndexes removeAllObjects];
+        [numbersIndexes addObject:[[NSMutableArray alloc] init]];
+        NSMutableArray *symbolsRow = [[NSMutableArray alloc] initWithArray:symbols];
+        for (int i = 0; i< [symbolsRow count]; i++ ) {
+            Symbol *symbol = symbolsRow[i];
+            symbol.x = [initialXs[i] integerValue];
+        }
+        
+        [symbolsRow sortUsingComparator:^NSComparisonResult(Symbol *s1, Symbol *s2) {
+            NSNumber *x1 = [NSNumber numberWithInt:(int)s1.x];
+            NSNumber *x2 = [NSNumber numberWithInt:(int)s2.x];
+            return [x1 compare:x2];
+        }];
+        
+        for (int i = 0; i< [symbolsRow count]; i++ ) {
+            Symbol *symbol = symbolsRow[i];
+            if (symbol.image.rows < 0.8*self.averageHeight) {
+                symbol.type = @"sign";
+                [signsIndexes addObject:[NSNumber numberWithUnsignedInteger:i]];
+                [self alignRow:symbolsRow indexes:[numbersIndexes lastObject]];
+                [numbersIndexes addObject:[[NSMutableArray alloc] init]];
+            } else {
+                symbol.type = @"digit";
+                [[numbersIndexes lastObject] addObject:[NSNumber numberWithUnsignedInteger:i]];
+            }
+        }
+        
+        symbols = [self recognizeSymbols:symbols];
+        self.symbols = symbolsRow;
+        self.signsIndexes = signsIndexes;
+        self.numbersIndexes = numbersIndexes;
+        
+        [self display];
+    }
+}
+
+- (void)alignRow:(NSArray *)symbols indexes:(NSArray *)indexes {
+    Symbol *firstSymbol = symbols[[[indexes firstObject] integerValue]];
+    Symbol *lastSymbol = symbols[[[indexes lastObject] integerValue]];
+    
+    if ([indexes count] > 1) {
+        for (int i = 1; i < [indexes count]; i++) {
+            Symbol *symbol = symbols[[indexes[i] integerValue]];
+            symbol.x = firstSymbol.x + i * (lastSymbol.x - firstSymbol.x) / ([indexes count] - 1);
+            symbol.y = firstSymbol.y;
+        }
     }
 }
 
@@ -608,7 +656,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self drawExpression];
 }
 
-- (NSArray *)peelSigns:(NSArray *)symbols {
+- (NSMutableArray *)peelSigns:(NSArray *)symbols {
     int minX = (int)[[symbols valueForKeyPath:@"@min.x"] integerValue];
     
     int averageWidth = 0;
@@ -620,7 +668,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     averageWidth = averageWidth / [symbols count];
     averageHeight = averageHeight / [symbols count];
-    self.fontSize = averageHeight * 9 / 10;
+    self.averageHeight = averageHeight;
     //NSLog(@"minX: %d, averageWidth: %d", minX, averageWidth);
     
     NSMutableArray *signs = [[NSMutableArray alloc] init];
@@ -753,7 +801,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (NSString *)getAnswer:(NSArray *)numbers signs:(NSArray *)signs {
     NSMutableString *expression = [[NSMutableString alloc] initWithString:@""];
-    //NSLog(@"number: %@, signs: %@", numbers, signs);
+    NSLog(@"number: %@, signs: %@", numbers, signs);
     [expression appendString:numbers[0]];
     for (int i = 0; i < [signs count]; i++) {
         [expression appendString:signs[i]];
@@ -824,9 +872,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     //NSLog(@"imageView size: %f %f", self.imageView.bounds.size.width, self.imageView.bounds.size.height);
     int y = self.focusRectView.top + symbol.y * self.imageView.bounds.size.height  / (self.image.size.height - 2 * [self padding]);
     //NSLog(@"x: %d, y: %d, padding: %d", x, y, [self padding]);
-    SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.fontSize*0.55, self.fontSize*0.8) symbol:symbol.symbol];
+    SymbolView *digitLabel = [[SymbolView alloc] initWithFrame:CGRectMake(x, y, self.averageHeight*0.5, self.averageHeight*0.72) symbol:symbol.symbol];
     
-    //digitLabel.fontSize = self.fontSize;
     digitLabel.type = symbol.type;
     digitLabel.symbolIndex = [self.symbols indexOfObjectIdenticalTo:symbol];
     digitLabel.userInteractionEnabled = NO;

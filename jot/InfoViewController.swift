@@ -12,12 +12,12 @@ class InfoViewController: UIViewController, UIScrollViewDelegate {
     
     @IBOutlet var scrollView: UIScrollView!
     
-    let pageImages = ["imgs/column.jpg",
-                "imgs/separate.jpg",
-                "imgs/no_shit.jpg",
-                "imgs/no_shit2.jpg",
-                "imgs/iphone_hand.png",
-                "imgs/iphone_swipe.png"]
+    let pageImages = ["column",
+                "separate",
+                "no_shit",
+                "no_shit2",
+                "iphone_hand",
+                "iphone_swipe"]
     
     let pageHeadings: [NSString] = ["Write","Focus","Compute","Adjust"]
     

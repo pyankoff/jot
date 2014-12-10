@@ -110,7 +110,8 @@
     
     //[self showImage:MatToUIImage(pic)];
     
-    if (int(contours.size()) < 100) {
+    //NSLog(@"%d", image.rows);
+    if (int(contours.size()) < image.rows/7) {
         
         for (int i = 0; i < contours.size(); i++ )
         {
